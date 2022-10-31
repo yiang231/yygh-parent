@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 @Api(description = "医院设置接口")//加在类上
 @CrossOrigin//设置跨域请求
@@ -24,6 +25,17 @@ import java.util.List;
 public class HospitalSetController {
 	@Autowired
 	private HospitalSetService hospitalSetService;
+
+	@GetMapping("{page}/{limit}")//无条件分页查询
+	public Result pageList(@ApiParam(name = "page", value = "第几页", required = true) @PathVariable Long page,
+						   @ApiParam(name = "limit", value = "每页条数", required = true) @PathVariable Long limit) {
+		/*Page<HospitalSet> pageParma = new Page<>(page, limit);
+		hospitalSetService.page(pageParma);
+		List<HospitalSet> rows = pageParma.getRecords();//当前页结果集
+		long total = pageParma.getTotal();//总记录数*/
+		Map<String, Object> map = hospitalSetService.selectPage(page, limit);
+		return Result.ok().data(map);
+	}
 
 	//查询所有医院设置
 	@ApiOperation(value = "医院设置findAll")//加在方法上
