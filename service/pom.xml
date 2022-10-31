@@ -40,6 +40,12 @@
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
         </dependency>
+        <!--添加swagger2模块依赖-->
+        <dependency>
+            <groupId>com.atguigu</groupId>
+            <artifactId>service-utils</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
         <!--开发者工具-->
         <!--<dependency>
             <groupId>org.springframework.boot</groupId>
