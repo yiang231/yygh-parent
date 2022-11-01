@@ -78,6 +78,11 @@ public class HospitalSetController {
 	@GetMapping("findAll")
 	public Result findAll() {
 		List<HospitalSet> list = hospitalSetService.list();
+		try {
+			int i = 1 / 0;
+		} catch (Exception e) {
+			throw new RuntimeException("出现了自定义异常");
+		}
 		return Result.ok().data("list", list);
 	}
 
