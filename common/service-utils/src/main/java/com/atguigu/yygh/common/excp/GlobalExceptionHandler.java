@@ -14,6 +14,7 @@ public class GlobalExceptionHandler {
 	@ResponseBody
 	@ExceptionHandler(value = Exception.class)
 	public Result error(Exception exp) {
+		log.info("出现了异常");
 		return Result.error().message(exp.getMessage());
 	}
 
@@ -21,13 +22,15 @@ public class GlobalExceptionHandler {
 	@ResponseBody
 	@ExceptionHandler(value = ArithmeticException.class)
 	public Result error(ArithmeticException exp) {
+		log.warn("ArithmeticException");
 		return Result.error().message(exp.getMessage());
 	}
 
+	//处理自定义异常
 	@ResponseBody
 	@ExceptionHandler(value = YyghException.class)
 	public Result error(YyghException exp) {
 		log.error(exp.getMsg());
-		return Result.error().message(exp.getMessage());
+		return Result.error().message(exp.getMsg());
 	}
 }

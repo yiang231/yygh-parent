@@ -107,6 +107,7 @@ public class HospitalSetController {
 		}
 		//2、hoscode具有唯一性，不能重复。方案：先带医院编号查询再新增
 		QueryWrapper<HospitalSet> queryWrapper = new QueryWrapper<>();
+		//查询条件和数据库字段保持一致
 		queryWrapper.eq("hoscode", hoscode);
 		int count = hospitalSetService.count(queryWrapper);//查询符合条件的总数
 		if (count >= 1) {
