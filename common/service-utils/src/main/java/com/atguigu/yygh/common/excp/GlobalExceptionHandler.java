@@ -1,12 +1,14 @@
 package com.atguigu.yygh.common.excp;
 
 import com.atguigu.yygh.common.result.Result;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 //统一异常处理器
 @ControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 	//处理全局异常
 	@ResponseBody
@@ -25,8 +27,7 @@ public class GlobalExceptionHandler {
 	@ResponseBody
 	@ExceptionHandler(value = YyghException.class)
 	public Result error(YyghException exp) {
-		System.out.println(exp.getMessage());
-		System.out.println(exp.getMsg());
+		log.error(exp.getMsg());
 		return Result.error().message(exp.getMessage());
 	}
 }
