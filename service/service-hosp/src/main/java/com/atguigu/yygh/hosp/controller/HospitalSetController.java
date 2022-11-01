@@ -95,9 +95,10 @@ public class HospitalSetController {
 		return bool ? Result.ok() : Result.error();
 	}
 
-	@GetMapping("findOne")
-	@ApiOperation(value = "医院设置findOne,RequestParam")
-	public HospitalSet findOne(@RequestParam Long id) {
-		return hospitalSetService.getById(id);
+	@GetMapping("getHospSet")
+	@ApiOperation(value = "医院设置根据id查询getById,RequestParam")
+	public Result getById(@ApiParam(name = "id", value = "医院设置查询的主键", required = true) @RequestParam Long id) {
+		HospitalSet hospitalSet = hospitalSetService.getById(id);
+		return Result.ok().data("item", hospitalSet);
 	}
 }
