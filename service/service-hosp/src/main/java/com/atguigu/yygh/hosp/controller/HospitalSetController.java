@@ -138,4 +138,16 @@ public class HospitalSetController {
 		hospitalSetService.updateById(hospitalSet);
 		return Result.ok();
 	}
+
+	@ApiOperation(value = "医院设置批量删除数据")
+	@DeleteMapping("batchRemove")
+	public Result batchRemove(@ApiParam(name = "ids", value = "医院设置批量删除的对象", required = true) @RequestBody List<Long> ids) {
+		//健壮性判断
+		if (ids == null || ids.size() == 0) {
+			return Result.error().message("请传递正确的id集合");
+		}
+		//删除数据
+		hospitalSetService.removeByIds(ids);
+		return Result.ok();
+	}
 }
