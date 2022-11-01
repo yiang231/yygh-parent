@@ -95,6 +95,29 @@ public class HospitalSetController {
 		return bool ? Result.ok() : Result.error();
 	}
 
+	//医院设置新增
+	@PostMapping("save")
+	@ApiOperation(value = "开通医院设置")
+	public Result save(@ApiParam(name = "hospitalSet", value = "医院设置要新增的对象") @RequestBody HospitalSet hospitalSet) {
+		//1、需要判断是否存在医院编号hoscode，即判断是否开通医院设置
+		String hoscode = hospitalSet.getHoscode();
+		if (StringUtils.isEmpty(hoscode)) {
+			return Result.error().message("医院编号不能为空");
+		}
+		//2、hoscode具有唯一性，不能重复。方案：先带医院编号查询再新增
+		QueryWrapper<HospitalSet> queryWrapper = new QueryWrapper<>();
+		queryWrapper.eq("hoscode", hoscode);
+		int count = hospitalSetService.count(queryWrapper);//查询符合条件的总数
+		if (count >= 1) {
+			return Result.error().message("医院设置已经开通，不可重复设置");
+		}
+		//3、将医院设置状态设置为1，非锁定状态
+		hospitalSet.setStatus(1);
+		//4、新增数据
+		boolean bool = hospitalSetService.save(hospitalSet);
+		return bool ? Result.ok().message("开通成功") : Result.error().message("开通失败");
+	}
+
 	@GetMapping("getHospSet")
 	@ApiOperation(value = "医院设置根据id查询getById,RequestParam")
 	public Result getById(@ApiParam(name = "id", value = "医院设置查询的主键", required = true) @RequestParam Long id) {
