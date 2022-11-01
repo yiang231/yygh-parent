@@ -124,4 +124,18 @@ public class HospitalSetController {
 		HospitalSet hospitalSet = hospitalSetService.getById(id);
 		return Result.ok().data("item", hospitalSet);
 	}
+
+	@ApiOperation(value = "医院设置更新数据")
+	@PostMapping("updateHospSet")
+	public Result updateById(@ApiParam(name = "hospitalSet", value = "医院设置更新的对象", required = true) @RequestBody HospitalSet hospitalSet) {
+		Long hospitalSetId = hospitalSet.getId();
+		if (StringUtils.isEmpty(hospitalSetId)) {
+			return Result.ok().message("id不能为空");
+		}
+		//传过去带医院编号的数据【不可被修改】，手动将hoscode改为空，由于update时动态SQL的特点，确保hoscode不会被修改
+		hospitalSet.setHoscode(null);
+		//更新数据
+		hospitalSetService.updateById(hospitalSet);
+		return Result.ok();
+	}
 }
