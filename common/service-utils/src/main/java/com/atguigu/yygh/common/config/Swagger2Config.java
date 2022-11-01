@@ -21,6 +21,7 @@ public class Swagger2Config {
 				.apiInfo(webApiInfo())
 				.select()
 				//只显示api路径下的页面
+				//注释下面这句，webApi分组会显示所有的controller，包括一个springboot默认的显示错误的controller
 				.paths(Predicates.and(PathSelectors.regex("/api/.*")))
 				.build();
 	}

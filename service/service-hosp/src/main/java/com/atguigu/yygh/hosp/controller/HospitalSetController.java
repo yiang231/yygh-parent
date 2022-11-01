@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -79,11 +78,11 @@ public class HospitalSetController {
 	@GetMapping("findAll")
 	public Result findAll() {
 		List<HospitalSet> list = hospitalSetService.list();
-		try {
+		/*try {
 			int i = 1 / 0;
 		} catch (Exception e) {
 			throw new RuntimeException("出现了自定义异常");
-		}
+		}*/
 		return Result.ok().data("list", list);
 	}
 
@@ -107,6 +106,7 @@ public class HospitalSetController {
 		}
 		//2、hoscode具有唯一性，不能重复。方案：先带医院编号查询再新增
 		QueryWrapper<HospitalSet> queryWrapper = new QueryWrapper<>();
+		//查询条件和数据库字段保持一致
 		queryWrapper.eq("hoscode", hoscode);
 		int count = hospitalSetService.count(queryWrapper);//查询符合条件的总数
 		if (count >= 1) {
@@ -119,9 +119,9 @@ public class HospitalSetController {
 		return bool ? Result.ok().message("开通成功") : Result.error().message("开通失败");
 	}
 
-	@GetMapping("getHospSet")
+	@GetMapping("getHospSet/{id}")
 	@ApiOperation(value = "医院设置根据id查询getById,RequestParam")
-	public Result getById(@ApiParam(name = "id", value = "医院设置查询的主键", required = true) @RequestParam Long id) {
+	public Result getById(@ApiParam(name = "id", value = "医院设置查询的主键", required = true) @PathVariable Long id) {
 		HospitalSet hospitalSet = hospitalSetService.getById(id);
 		return Result.ok().data("item", hospitalSet);
 	}
