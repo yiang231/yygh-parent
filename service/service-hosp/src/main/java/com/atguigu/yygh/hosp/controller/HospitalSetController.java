@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -149,5 +150,27 @@ public class HospitalSetController {
 		//删除数据
 		hospitalSetService.removeByIds(ids);
 		return Result.ok();
+	}
+
+	@ApiOperation(value = "医院设置锁定和解锁")
+	@PutMapping("lockHospitalSet/{id}/{status}")
+	public Result lockHospitalSet(@ApiParam(name = "id", value = "医院设置锁定状态，修改前查询所需要的id", required = true) @PathVariable Long id,
+								  @ApiParam(name = "status", value = "医院设置锁定的状态0或1", required = true) @PathVariable Integer status) {
+		//1、健壮性判断【参数不为空】
+		if (StringUtils.isEmpty(id) || StringUtils.isEmpty(status)) {
+			return Result.error().message("参数不能为空");
+		}
+		//2、先查再改【是否存在医院设置，当前要指定的status是否为1】
+		HospitalSet hospitalSet = hospitalSetService.getById(id);
+		if (hospitalSet == null) {
+			return Result.error().message("该医院设置不存在");
+		}
+		if (status != 0 && status != 1) {
+			return Result.error().message("status只能设置为0锁定，1非锁定");
+		}
+		hospitalSet.setStatus(status);
+		//3、更新数据
+		boolean bool = hospitalSetService.updateById(hospitalSet);
+		return bool ? Result.ok() : Result.error();
 	}
 }
