@@ -83,7 +83,7 @@ public class HospitalSetController {
 		} catch (Exception e) {
 			throw new RuntimeException("出现了自定义异常");
 		}*/
-		return Result.ok().data("list", list);
+		return Result.ok().data("list", list).message("查询成功");
 	}
 
 	//逻辑删除
@@ -108,6 +108,8 @@ public class HospitalSetController {
 		QueryWrapper<HospitalSet> queryWrapper = new QueryWrapper<>();
 		//查询条件和数据库字段保持一致
 		queryWrapper.eq("hoscode", hoscode);
+		//被逻辑删除的医院设置，在统计hoscode是否存在时，被逻辑删除的数据不会被统计出来，展现其被删除的状态
+		queryWrapper.last("OR ( is_deleted=1 AND hoscode=" + hoscode + ")");
 		int count = hospitalSetService.count(queryWrapper);//查询符合条件的总数
 		if (count >= 1) {
 			return Result.error().message("医院设置已经开通，不可重复设置");
@@ -123,7 +125,7 @@ public class HospitalSetController {
 	@ApiOperation(value = "医院设置根据id查询getById,RequestParam")
 	public Result getById(@ApiParam(name = "id", value = "医院设置查询的主键", required = true) @PathVariable Long id) {
 		HospitalSet hospitalSet = hospitalSetService.getById(id);
-		return Result.ok().data("item", hospitalSet);
+		return Result.ok().data("item", hospitalSet).message("查询成功");
 	}
 
 	@ApiOperation(value = "医院设置更新数据")
@@ -137,7 +139,7 @@ public class HospitalSetController {
 		hospitalSet.setHoscode(null);
 		//更新数据
 		hospitalSetService.updateById(hospitalSet);
-		return Result.ok();
+		return Result.ok().message("更新成功");
 	}
 
 	@ApiOperation(value = "医院设置批量删除数据")
@@ -149,7 +151,7 @@ public class HospitalSetController {
 		}
 		//删除数据
 		hospitalSetService.removeByIds(ids);
-		return Result.ok();
+		return Result.ok().message("批量删除成功");
 	}
 
 	@ApiOperation(value = "医院设置锁定和解锁")
