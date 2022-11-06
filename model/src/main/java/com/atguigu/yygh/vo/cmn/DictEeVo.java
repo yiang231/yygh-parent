@@ -1,8 +1,9 @@
 package com.atguigu.yygh.vo.cmn;
 
 import com.alibaba.excel.annotation.ExcelProperty;
-import com.alibaba.excel.metadata.BaseRowModel;
 import lombok.Data;
+
+import java.io.Serializable;
 
 /**
  * <p>
@@ -12,21 +13,22 @@ import lombok.Data;
  * @author qy
  */
 @Data
-public class DictEeVo {
+//实现数据字典导出需要实现序列化接口
+public class DictEeVo implements Serializable {
 
-	@ExcelProperty(value = "id" ,index = 0)
+	@ExcelProperty(value = "id", index = 0)
 	private Long id;
 
-	@ExcelProperty(value = "上级id" ,index = 1)
+	@ExcelProperty(value = "上级id", index = 1)
 	private Long parentId;
 
-	@ExcelProperty(value = "名称" ,index = 2)
+	@ExcelProperty(value = "名称", index = 2)
 	private String name;
 
-	@ExcelProperty(value = "值" ,index = 3)
+	@ExcelProperty(value = "值", index = 3)
 	private String value;
 
-	@ExcelProperty(value = "编码" ,index = 4)
+	@ExcelProperty(value = "编码", index = 4)
 	private String dictCode;
 
 }
