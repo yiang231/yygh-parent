@@ -33,14 +33,18 @@ public class DictController {
 		return Result.ok().data("list", list);
 	}
 
+	// 文件上传
+	@ApiOperation(value = "数据字典导入")
 	@PostMapping("importData")
-	public Result importData(MultipartFile file) {
+	public Result importData(@ApiParam(name = "file", value = "要导入的Excel文件，拿到文件输入流file.getInputStream()", required = true) MultipartFile file) {
 		dictService.importDictData(file);
 		return Result.ok();
 	}
 
+	// 文件下载
+	@ApiOperation(value = "数据字典导出")
 	@GetMapping("exportData")
-	public void exportData(HttpServletResponse response) {
+	public void exportData(@ApiParam(name = "httpServletResponse", value = "文件下载需要的文件输出流response.getOutputStream()", required = true) HttpServletResponse response) {
 		dictService.exportDictData(response);
 	}
 }
