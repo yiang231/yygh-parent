@@ -10,31 +10,48 @@ import com.atguigu.yygh.vo.cmn.DictEeVo;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.InputStream;
 import java.net.URLEncoder;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements DictService {
 	@Autowired
+	//需要声明泛型
+	private RedisTemplate redisTemplate;
+	@Autowired
 	private DictReadListener dictReadListener;
-
 	@Autowired
 	private DictMapper dictMapper;
 
-	@Cacheable(value = "cmn_dict", key = "'cmn_dict_cache_'+#id")
+	//@Cacheable(value = "cmn_dict", key = "'cmn_dict_cache_'+#id")
 	public List<Dict> findChildData(Long id) {
+		//序列化：将对象的状态转成可存储的或者可以传输的状态
+		//redis中获取数据,数据格式存取一致
+		List<Dict> list = (List<Dict>) redisTemplate.boundValueOps("dict_cache_" + id).get();
+		if (!StringUtils.isEmpty(list)) {
+			return list;
+		}
 		QueryWrapper<Dict> dictQueryWrapper = new QueryWrapper<>();
 		dictQueryWrapper.eq("parent_id", id);
 
-		List<Dict> list = this.list(dictQueryWrapper);
+		list = this.list(dictQueryWrapper);
+//		List<Dict> list = this.list(dictQueryWrapper);
 		list.forEach(this::hasChildDict);
+
+		//redis中存数据
+		redisTemplate.boundValueOps("dict_cache_" + id).set(list, 10, TimeUnit.MINUTES);
+//		redisTemplate.opsForValue().set("k", "v");
+//		redisTemplate.boundHashOps("dict-cache").put(id, list);//Hash结构HashMap<Key,map<key,value>>
+//		redisTemplate.boundValueOps("dict_cache").expire(5, TimeUnit.MINUTES);//需要分开设置过期时间
 		return list;
 	}
 
@@ -46,9 +63,12 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
 		dict.setHasChildren(count > 0);
 	}
 
-	@CacheEvict(value = "cmn_dict", key = "#id", allEntries = true, beforeInvocation = true)
+	//@CacheEvict(value = "cmn_dict", key = "#id", allEntries = true, beforeInvocation = true)
 	@Override
 	public void importDictData(MultipartFile file) {
+		//向MySQL中导入数据前需要将之前的数据缓存进行清空
+		Set<String> keys = redisTemplate.keys("*dict_cache_*");
+		redisTemplate.delete(keys);
 		try {
 			InputStream is = file.getInputStream();
 			//不写sheet默认从第一个表开始读取
