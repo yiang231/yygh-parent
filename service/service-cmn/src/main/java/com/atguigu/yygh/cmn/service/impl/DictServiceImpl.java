@@ -10,6 +10,8 @@ import com.atguigu.yygh.vo.cmn.DictEeVo;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,6 +28,7 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
 	@Autowired
 	private DictMapper dictMapper;
 
+	@Cacheable(value = "cmn_dict", key = "'cmn_dict_cache_'+#id")
 	public List<Dict> findChildData(Long id) {
 		QueryWrapper<Dict> dictQueryWrapper = new QueryWrapper<>();
 		dictQueryWrapper.eq("parent_id", id);
@@ -35,6 +38,15 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
 		return list;
 	}
 
+	public void hasChildDict(Dict dict) {
+		QueryWrapper<Dict> wrapper = new QueryWrapper<>();
+		wrapper.eq("parent_id", dict.getId());
+		Integer count = baseMapper.selectCount(wrapper);
+		//判断当前数据字典对象是否存在子节点
+		dict.setHasChildren(count > 0);
+	}
+
+	@CacheEvict(value = "cmn_dict", key = "#id", allEntries = true, beforeInvocation = true)
 	@Override
 	public void importDictData(MultipartFile file) {
 		try {
@@ -75,13 +87,5 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
-
-	public void hasChildDict(Dict dict) {
-		QueryWrapper<Dict> wrapper = new QueryWrapper<>();
-		wrapper.eq("parent_id", dict.getId());
-		Integer count = baseMapper.selectCount(wrapper);
-		//判断当前数据字典对象是否存在子节点
-		dict.setHasChildren(count > 0);
 	}
 }
