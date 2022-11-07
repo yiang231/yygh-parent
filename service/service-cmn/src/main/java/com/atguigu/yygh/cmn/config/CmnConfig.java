@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @Configuration
 @EnableTransactionManagement
 @MapperScan("com.atguigu.yygh.cmn.mapper")
-public class HospConfig {
+public class CmnConfig {
 	/*
 	 * 分页插件
 	 */
