@@ -4,72 +4,92 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import java.util.HashMap;
-import java.util.Map;
-
-@ApiModel(description = "通用的返回结果")
+/**
+ * 全局统一返回结果类
+ */
 @Data
-public class Result {
-	@ApiModelProperty(value = "自定义返回状态码", example = "20000")
-	private Integer code;//20000成功  20001失败
-	private String message;//操作成功  操作失败
-	private boolean success;//true false
-	private Map<String, Object> data = new HashMap<>(); //存放数据
+@ApiModel(value = "全局统一返回结果")
+public class Result<T> {
 
-	public static Result ok() {
-		Result result = new Result();
-		result.setCode(ResultCode.SUCCESS);
-		result.setMessage("操作成功");
-		result.setSuccess(true);
+	@ApiModelProperty(value = "返回码")
+	private Integer code;
+
+	@ApiModelProperty(value = "返回消息")
+	private String message;
+
+	@ApiModelProperty(value = "返回数据")
+	private T data;
+
+	public Result() {
+	}
+
+	protected static <T> Result<T> build(T data) {
+		Result<T> result = new Result<T>();
+		if (data != null)
+			result.setData(data);
 		return result;
 	}
 
-	public static Result error() {
-		Result result = new Result();
-		result.setCode(ResultCode.ERROR);
-		result.setMessage("操作失败");
-		result.setSuccess(false);
+	public static <T> Result<T> build(T body, ResultCodeEnum resultCodeEnum) {
+		Result<T> result = build(body);
+		result.setCode(resultCodeEnum.getCode());
+		result.setMessage(resultCodeEnum.getMessage());
 		return result;
 	}
 
-	public static void main(String[] args) {
-		Result result = Result.ok();
-		System.out.println("result = " + result);
-		Result newCode = result.code(11111);
-		System.out.println("newCode = " + newCode);
+	public static <T> Result<T> build(Integer code, String message) {
+		Result<T> result = build(null);
+		result.setCode(code);
+		result.setMessage(message);
+		return result;
 	}
 
-	//修改code的值
-	public Result code(Integer code) {
+	public static <T> Result<T> ok() {
+		return Result.ok(null);
+	}
+
+	/**
+	 * 操作成功
+	 *
+	 * @param data
+	 * @param <T>
+	 * @return
+	 */
+	public static <T> Result<T> ok(T data) {
+		Result<T> result = build(data);
+		return build(data, ResultCodeEnum.SUCCESS);
+	}
+
+	public static <T> Result<T> fail() {
+		return Result.fail(null);
+	}
+
+	/**
+	 * 操作失败
+	 *
+	 * @param data
+	 * @param <T>
+	 * @return
+	 */
+	public static <T> Result<T> fail(T data) {
+		Result<T> result = build(data);
+		return build(data, ResultCodeEnum.FAIL);
+	}
+
+	public Result<T> message(String msg) {
+		this.setMessage(msg);
+		return this;
+	}
+
+	public Result<T> code(Integer code) {
 		this.setCode(code);
 		return this;
 	}
 
-	public Result message(String message) {
-		this.setMessage(message);
-		return this;
-	}
-
-	public Result success(boolean success) {
-		this.setSuccess(success);
-		return this;
-	}
-
-	//手动设置数据
-	public Result data(String key, Object value) {
-		this.data.put(key, value);
-		return this;
-	}
-
-	//完全修改数据
-	public Result data(Map<String, Object> data) {
-		this.setData(data);
-		return this;
-	}
-
-	//追加数据
-	public Result dataAppend(Map<String, Object> data) {
-		this.data.putAll(data);
-		return this;
+	public boolean isOk() {
+		if (this.getCode().intValue() == ResultCodeEnum.SUCCESS.getCode().intValue()) {
+			return true;
+		}
+		return false;
 	}
 }

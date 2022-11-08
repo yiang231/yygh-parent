@@ -1,10 +1,7 @@
 package com.atguigu.yygh.model.hosp;
 
 import com.alibaba.fastjson.JSONObject;
-import com.atguigu.yygh.model.base.BaseEntity;
 import com.atguigu.yygh.model.base.BaseMongoEntity;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -22,9 +19,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @ApiModel(description = "Hospital")
 @Document("Hospital")
 public class Hospital extends BaseMongoEntity {
-	
+
 	private static final long serialVersionUID = 1L;
-	
+
 	@ApiModelProperty(value = "医院编号")
 	@Indexed(unique = true) //唯一索引
 	private String hoscode;
@@ -34,16 +31,16 @@ public class Hospital extends BaseMongoEntity {
 	private String hosname;
 
 	@ApiModelProperty(value = "医院类型")
-	private String hostype;
+	private String hostype;//不是直接存储医院等级名称，存的是数据字典的value
 
 	@ApiModelProperty(value = "省code")
-	private String provinceCode;
+	private String provinceCode;//存的是数据字典的value
 
 	@ApiModelProperty(value = "市code")
-	private String cityCode;
+	private String cityCode;//存的是数据字典的value
 
 	@ApiModelProperty(value = "区code")
-	private String districtCode;
+	private String districtCode;//存的是数据字典的value
 
 	@ApiModelProperty(value = "详情地址")
 	private String address;
@@ -53,7 +50,6 @@ public class Hospital extends BaseMongoEntity {
 
 	@ApiModelProperty(value = "医院简介")
 	private String intro;
-
 
 	@ApiModelProperty(value = "坐车路线")
 	private String route;
@@ -68,6 +64,4 @@ public class Hospital extends BaseMongoEntity {
 	public void setBookingRule(String bookingRule) {
 		this.bookingRule = JSONObject.parseObject(bookingRule, BookingRule.class);
 	}
-
 }
-

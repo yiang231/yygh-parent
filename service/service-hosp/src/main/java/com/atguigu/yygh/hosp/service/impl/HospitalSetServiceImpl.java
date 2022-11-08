@@ -3,6 +3,7 @@ package com.atguigu.yygh.hosp.service.impl;
 import com.atguigu.yygh.hosp.mapper.HospitalSetMapper;
 import com.atguigu.yygh.hosp.service.HospitalSetService;
 import com.atguigu.yygh.model.hosp.HospitalSet;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,5 +34,15 @@ public class HospitalSetServiceImpl extends ServiceImpl<HospitalSetMapper, Hospi
 		map.put("total", total);
 		map.put("rows", rows);
 		return map;
+	}
+
+	@Override
+	public HospitalSet findByHoscode(String hoscode) {
+		QueryWrapper<HospitalSet> hospitalSetQueryWrapper = new QueryWrapper<>();
+		hospitalSetQueryWrapper.eq("hoscode", hoscode);
+		//HospitalSet hospitalSet = HospitalSetService.getOne(hospitalSetQueryWrapper);
+		//HospitalSet hospitalSet = this.getOne(hospitalSetQueryWrapper);//当前对象
+		//baseMapper.selectOne(hospitalSetQueryWrapper);
+		return this.getOne(hospitalSetQueryWrapper);
 	}
 }

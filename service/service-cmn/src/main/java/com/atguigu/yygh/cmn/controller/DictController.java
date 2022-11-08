@@ -1,7 +1,7 @@
 package com.atguigu.yygh.cmn.controller;
 
 import com.atguigu.yygh.cmn.service.DictService;
-import com.atguigu.yygh.common.result.Result;
+import com.atguigu.yygh.common.result.R;
 import com.atguigu.yygh.model.cmn.Dict;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -28,17 +28,17 @@ public class DictController {
 
 	@ApiOperation(value = "根据数据id查询子数据列表")
 	@GetMapping("findChildData/{id}")
-	public Result findChildData(@ApiParam(name = "id", value = "当前数据字典对象的id", required = true) @PathVariable Long id) {
+	public R findChildData(@ApiParam(name = "id", value = "当前数据字典对象的id", required = true) @PathVariable Long id) {
 		List<Dict> list = dictService.findChildData(id);
-		return Result.ok().data("list", list);
+		return R.ok().data("list", list);
 	}
 
 	// 文件上传
 	@ApiOperation(value = "数据字典导入")
 	@PostMapping("importData")
-	public Result importData(@ApiParam(name = "file", value = "要导入的Excel文件，拿到文件输入流file.getInputStream()", required = true) MultipartFile file) {
+	public R importData(@ApiParam(name = "file", value = "要导入的Excel文件，拿到文件输入流file.getInputStream()", required = true) MultipartFile file) {
 		dictService.importDictData(file);
-		return Result.ok();
+		return R.ok();
 	}
 
 	// 文件下载

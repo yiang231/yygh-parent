@@ -1,9 +1,6 @@
 package com.atguigu.yygh.model.hosp;
 
-import com.atguigu.yygh.model.base.BaseEntity;
 import com.atguigu.yygh.model.base.BaseMongoEntity;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -15,9 +12,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 /**
- * <p>
  * Schedule
- * </p>
  *
  * @author qy
  */
@@ -25,7 +20,7 @@ import java.util.Date;
 @ApiModel(description = "Schedule")
 @Document("Schedule")
 public class Schedule extends BaseMongoEntity {
-	
+
 	private static final long serialVersionUID = 1L;
 
 	@ApiModelProperty(value = "医院编号")
@@ -66,7 +61,5 @@ public class Schedule extends BaseMongoEntity {
 
 	@ApiModelProperty(value = "排班编号（医院自己的排班主键）")
 	@Indexed //普通索引
-	private String hosScheduleId;
-
+	private String hosScheduleId;//医院端自己的排班
 }
-

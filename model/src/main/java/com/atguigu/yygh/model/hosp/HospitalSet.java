@@ -8,9 +8,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
- * <p>
  * HospitalSet
- * </p>
  *
  * @author qy
  */
@@ -48,6 +46,4 @@ public class HospitalSet extends BaseEntity {
 	@ApiModelProperty(value = "状态")
 	@TableField("status")
 	private Integer status;
-
 }
-
