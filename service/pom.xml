@@ -65,14 +65,14 @@
             <optional>true</optional>
         </dependency>-->
         <!-- 服务调用feign -->
-        <!--<dependency>
+        <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-openfeign</artifactId>
         </dependency>
-        &lt;!&ndash; 服务注册 &ndash;&gt;
+        <!-- 服务注册 -->
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
-        </dependency>-->
+        </dependency>
     </dependencies>
 </project>
