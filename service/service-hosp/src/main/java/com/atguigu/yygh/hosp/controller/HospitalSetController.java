@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.Map;
 
-@Api(description = "医院设置接口")//加在类上
+@Api(tags = "医院设置接口")//加在类上
 @CrossOrigin//设置跨域请求
 @RestController
 @RequestMapping("/admin/hosp/hospitalSet")

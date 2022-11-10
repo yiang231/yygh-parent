@@ -18,7 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
-@Api(description = "数据字典接口")//加在类上
+@Api(tags = "数据字典接口")//加在类上
 @CrossOrigin//设置跨域请求
 @RestController
 @RequestMapping("/admin/cmn/dict")
@@ -48,18 +48,22 @@ public class DictController {
 		dictService.exportDictData(response);
 	}
 
+	@ApiOperation(value = "根据value和数据字典码查询医院等级")
 	@GetMapping("/getName/{value}/{dictCode}")
-	public String getNameByValueAndDictCode(@PathVariable String value, @PathVariable String dictCode) {
+	public String getNameByValueAndDictCode(@ApiParam(name = "value", value = "数据字典中的value字段", required = true) @PathVariable String value,
+											@ApiParam(name = "dictCode", value = "数据字典码") @PathVariable String dictCode) {
 		return dictService.getName(value, dictCode);
 	}
 
+	@ApiOperation(value = "根据value查询医院所在省市区")
 	@GetMapping("/getName/{value}")
-	public String getNameByValueAndDictCode(@PathVariable String value) {
+	public String getNameByValueAndDictCode(@ApiParam(name = "value", value = "数据字典中的value字段", required = true) @PathVariable String value) {
 		return dictService.getName(value, "");
 	}
 
+	@ApiOperation(value = "医院列表下拉框省市区联动，选择省之后根据字典码查询城省下的城市")
 	@GetMapping("/findByDictCode/{dictCode}")
-	public R findByDictCode(@PathVariable String dictCode) {
+	public R findByDictCode(@ApiParam(name = "dictCode", value = "数据字典码", required = true) @PathVariable String dictCode) {
 		List<Dict> list = dictService.findByDictCode(dictCode);
 		return R.ok().data("list", list);
 	}

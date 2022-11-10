@@ -10,6 +10,9 @@ import com.atguigu.yygh.model.hosp.Hospital;
 import com.atguigu.yygh.model.hosp.Schedule;
 import com.atguigu.yygh.vo.hosp.DepartmentQueryVo;
 import com.atguigu.yygh.vo.hosp.ScheduleQueryVo;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
-
+@Api(tags = "医院管理API接口")
 @RestController
 @RequestMapping("/api/hosp")
 public class ApiController {
@@ -30,29 +33,33 @@ public class ApiController {
 	@Autowired
 	private ScheduleService scheduleService;
 
+	@ApiOperation(value = "上传医院")
 	@PostMapping("/saveHospital")
-	public Result saveHospital(HttpServletRequest request) {
+	public Result saveHospital(@ApiParam(name = "request", value = "request请求用来获取前端传来的数据", required = true) HttpServletRequest request) {
 		// 新增或者修改
 		hospitalService.save(toMap(request));
 		return Result.ok();//code = 200, data = null, message = 成功
 	}
 
+	@ApiOperation(value = "获取医院信息")
 	@PostMapping("/hospital/show")
-	public Result hospitalShow(HttpServletRequest request) {
+	public Result hospitalShow(@ApiParam(name = "request", value = "request请求用来获取前端传来的数据", required = true) HttpServletRequest request) {
 		//查询医院列表
 		Hospital hospital = hospitalService.getByHoscode(toMap(request));
 		return Result.ok(hospital);
 	}
 
+	@ApiOperation(value = "上传科室")
 	@PostMapping("/saveDepartment")
-	public Result saveDepartment(HttpServletRequest request) {
+	public Result saveDepartment(@ApiParam(name = "request", value = "request请求用来获取前端传来的数据", required = true) HttpServletRequest request) {
 		//添加科室
 		departmentService.save(toMap(request));
 		return Result.ok();
 	}
 
+	@ApiOperation(value = "获取科室分页列表")
 	@PostMapping("/department/list")
-	public Result departmentList(HttpServletRequest request) {
+	public Result departmentList(@ApiParam(name = "request", value = "request请求用来获取前端传来的数据", required = true) HttpServletRequest request) {
 		Map<String, Object> parmaMap = toMap(request);
 		String hoscode = (String) parmaMap.get("hoscode");
 		String page = (String) parmaMap.get("page");
@@ -65,8 +72,9 @@ public class ApiController {
 		return Result.ok(pageResult);
 	}
 
+	@ApiOperation(value = "删除科室")
 	@PostMapping("department/remove")
-	public Result departmentRemove(HttpServletRequest request) {
+	public Result departmentRemove(@ApiParam(name = "request", value = "request请求用来获取前端传来的数据", required = true) HttpServletRequest request) {
 		Map<String, Object> parmaMap = toMap(request);
 		String hoscode = (String) parmaMap.get("hoscode");
 		String depcode = (String) parmaMap.get("depcode");
@@ -74,15 +82,17 @@ public class ApiController {
 		return Result.ok();
 	}
 
+	@ApiOperation(value = "上传排班")
 	@PostMapping("saveSchedule")
-	public Result saveSchedule(HttpServletRequest request) {
+	public Result saveSchedule(@ApiParam(name = "request", value = "request请求用来获取前端传来的数据", required = true) HttpServletRequest request) {
 		Map<String, Object> paramMap = toMap(request);
 		scheduleService.save(paramMap);
 		return Result.ok();
 	}
 
+	@ApiOperation(value = "获取排班分页列表")
 	@PostMapping("/schedule/list")
-	public Result scheduleList(HttpServletRequest request) {
+	public Result scheduleList(@ApiParam(name = "request", value = "request请求用来获取前端传来的数据", required = true) HttpServletRequest request) {
 		Map<String, Object> parmaMap = toMap(request);
 		String hoscode = (String) parmaMap.get("hoscode");
 		String depcode = (String) parmaMap.get("depcode");
@@ -97,8 +107,9 @@ public class ApiController {
 		return Result.ok(pageResult);
 	}
 
+	@ApiOperation(value = "删除排班")
 	@PostMapping("/schedule/remove")
-	public Result scheduleRemove(HttpServletRequest request) {
+	public Result scheduleRemove(@ApiParam(name = "request", value = "request请求用来获取前端传来的数据", required = true) HttpServletRequest request) {
 		Map<String, Object> parmaMap = toMap(request);
 		String hoscode = (String) parmaMap.get("hoscode");
 		String hosScheduleId = (String) parmaMap.get("hosScheduleId");
