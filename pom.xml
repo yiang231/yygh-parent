@@ -12,6 +12,7 @@
         <module>model</module>
         <module>service</module>
         <module>common</module>
+        <module>service-client</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>

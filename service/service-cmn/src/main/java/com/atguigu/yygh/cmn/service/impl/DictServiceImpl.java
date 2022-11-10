@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.atguigu.yygh.cmn.excelListener.DictReadListener;
 import com.atguigu.yygh.cmn.mapper.DictMapper;
 import com.atguigu.yygh.cmn.service.DictService;
+import com.atguigu.yygh.common.excp.YyghException;
 import com.atguigu.yygh.model.cmn.Dict;
 import com.atguigu.yygh.vo.cmn.DictEeVo;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
@@ -105,5 +107,51 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public String getName(String value, String dictCode) {
+		//select * from dict where value = 1 [ and parent_id =  ( select * from dict where dict_code  = 'HosType' ) ];
+		//根据dictCode查询拿到parent_id
+		QueryWrapper<Dict> queryWrapper = new QueryWrapper<>();
+		if (StringUtils.isEmpty(dictCode)) {
+			//查询省市区，可以根据value唯一查询
+			queryWrapper.eq("value", value);
+			Dict selectPCD = baseMapper.selectOne(queryWrapper);
+			if (selectPCD == null) {
+				throw new YyghException(20001, "数据不存在");
+			}
+			return selectPCD.getName();
+		} else {
+			//查询医院等级
+			Dict dict = this.getDictByDictCode(dictCode);
+			Long parentId = dict.getId();
+			queryWrapper.eq("parent_id", parentId).eq("value", value);
+			Dict dictHosType = baseMapper.selectOne(queryWrapper);
+			if (dictHosType == null) {
+				throw new YyghException(20001, "数据字典不存在");
+			}
+			return dictHosType.getName();
+		}
+	}
+
+	@Override
+	public List<Dict> findByDictCode(String dictCode) {
+//		SELECT * FROM dict WHERE parent_id = (
+//				SELECT id FROM dict WHERE dict_code = 'Province')
+		Long id = this.getDictByDictCode(dictCode).getId();
+		List<Dict> dictList = this.findChildData(id);
+		return dictList;
+	}
+
+	//根据dictCode查询
+	private Dict getDictByDictCode(String dictCode) {
+		QueryWrapper<Dict> queryWrapper = new QueryWrapper<>();
+		queryWrapper.eq("dict_code", dictCode);
+		Dict dict = baseMapper.selectOne(queryWrapper);
+		if (dict == null) {
+			throw new YyghException(20001, "该dictCode不存在");
+		}
+		return dict;
 	}
 }

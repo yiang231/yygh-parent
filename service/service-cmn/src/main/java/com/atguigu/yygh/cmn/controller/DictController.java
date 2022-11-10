@@ -47,4 +47,20 @@ public class DictController {
 	public void exportData(@ApiParam(name = "httpServletResponse", value = "文件下载需要的文件输出流response.getOutputStream()", required = true) HttpServletResponse response) {
 		dictService.exportDictData(response);
 	}
+
+	@GetMapping("/getName/{value}/{dictCode}")
+	public String getNameByValueAndDictCode(@PathVariable String value, @PathVariable String dictCode) {
+		return dictService.getName(value, dictCode);
+	}
+
+	@GetMapping("/getName/{value}")
+	public String getNameByValueAndDictCode(@PathVariable String value) {
+		return dictService.getName(value, "");
+	}
+
+	@GetMapping("/findByDictCode/{dictCode}")
+	public R findByDictCode(@PathVariable String dictCode) {
+		List<Dict> list = dictService.findByDictCode(dictCode);
+		return R.ok().data("list", list);
+	}
 }

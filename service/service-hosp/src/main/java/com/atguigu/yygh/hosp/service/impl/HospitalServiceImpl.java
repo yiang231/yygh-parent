@@ -1,14 +1,23 @@
 package com.atguigu.yygh.hosp.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.atguigu.cmn.client.DictFeignClient;
 import com.atguigu.yygh.common.excp.YyghException;
 import com.atguigu.yygh.common.utils.MD5;
+import com.atguigu.yygh.enums.DictEnum;
 import com.atguigu.yygh.hosp.repository.HospitalRepository;
 import com.atguigu.yygh.hosp.service.HospitalService;
 import com.atguigu.yygh.hosp.service.HospitalSetService;
 import com.atguigu.yygh.model.hosp.Hospital;
 import com.atguigu.yygh.model.hosp.HospitalSet;
+import com.atguigu.yygh.vo.hosp.HospitalQueryVo;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -24,6 +33,8 @@ public class HospitalServiceImpl implements HospitalService {
 	private HospitalRepository hospitalRepository;
 	@Autowired
 	private HospitalSetService hospitalSetService;
+	@Autowired
+	private DictFeignClient dictFeignClient;
 
 	@Override
 	public void save(Map<String, Object> paramMap) {
@@ -96,5 +107,54 @@ public class HospitalServiceImpl implements HospitalService {
 			throw new YyghException(20001, "医院编号不能为空");
 		}
 		return hospitalRepository.findByHoscode(hoscode);
+	}
+
+	@Override
+	public Page<Hospital> selectPage(Integer page, Integer limit, HospitalQueryVo hospitalQueryVo) {
+		Hospital hospital = new Hospital();
+		BeanUtils.copyProperties(hospitalQueryVo, hospital);
+
+		PageRequest pageable = PageRequest.of(page - 1, limit, Sort.by(Sort.Direction.DESC, "createTime"));
+
+		ExampleMatcher exampleMatcher = ExampleMatcher.matching().withIgnoreCase(true).withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING);
+		Example<Hospital> example = Example.of(hospital, exampleMatcher);
+		Page<Hospital> pageResult = hospitalRepository.findAll(example, pageable);
+
+		//医院服务调用数据字典服务
+		pageResult.getContent().forEach(this::packHospital);
+		return pageResult;
+	}
+
+	@Override
+	public void updateStatus(String id, Integer status) {
+		Hospital hospital = hospitalRepository.findById(id).get();
+		hospital.setStatus(status);
+		hospitalRepository.save(hospital);
+	}
+
+	@Override
+	public Hospital show(String id) {
+		Hospital hospital = hospitalRepository.findById(id).get();
+		this.packHospital(hospital);
+		return hospital;
+	}
+
+	private void packHospital(Hospital hosp) {
+		//这四条属性在mongo中对应数据字典value的值
+		String hostype = hosp.getHostype();
+		String provinceCode = hosp.getProvinceCode();
+		String cityCode = hosp.getCityCode();
+		String districtCode = hosp.getDistrictCode();
+
+		String hosTypeString = dictFeignClient.getNameByValueAndDictCode(hostype, DictEnum.HOSTYPE.getDictCode());
+		String provinceString = dictFeignClient.getNameByValueAndDictCode(provinceCode);
+		String cityString = dictFeignClient.getNameByValueAndDictCode(cityCode);
+		String districtString = dictFeignClient.getNameByValueAndDictCode(districtCode);
+
+		String fullAddress = provinceString + cityString + districtString + hosp.getAddress();
+
+		//其他参数信息
+		hosp.getParam().put("hosTypeString", hosTypeString);
+		hosp.getParam().put("fullAddress", fullAddress);
 	}
 }

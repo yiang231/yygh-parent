@@ -2,12 +2,11 @@ package com.atguigu.yygh.common.excp;
 
 import com.atguigu.yygh.common.result.R;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 //统一异常处理器
-@ControllerAdvice
+//@ControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
 	//处理全局异常
