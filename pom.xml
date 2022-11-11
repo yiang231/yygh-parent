@@ -13,6 +13,7 @@
         <module>service</module>
         <module>common</module>
         <module>service-client</module>
+        <module>service-gateway</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>

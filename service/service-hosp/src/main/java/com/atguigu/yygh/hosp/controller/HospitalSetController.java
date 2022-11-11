@@ -11,7 +11,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 @Api(tags = "医院设置接口")//加在类上
-@CrossOrigin//设置跨域请求
+//@CrossOrigin//设置跨域请求
 @RestController
 @RequestMapping("/admin/hosp/hospitalSet")
 public class HospitalSetController {
