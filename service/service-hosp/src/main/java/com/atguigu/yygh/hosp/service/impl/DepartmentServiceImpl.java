@@ -5,6 +5,7 @@ import com.atguigu.yygh.hosp.repository.DepartmentRepository;
 import com.atguigu.yygh.hosp.service.DepartmentService;
 import com.atguigu.yygh.model.hosp.Department;
 import com.atguigu.yygh.vo.hosp.DepartmentQueryVo;
+import com.atguigu.yygh.vo.hosp.DepartmentVo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
@@ -14,8 +15,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class DepartmentServiceImpl implements DepartmentService {
@@ -64,5 +68,46 @@ public class DepartmentServiceImpl implements DepartmentService {
 		if (department != null) {
 			departmentRepository.deleteById(department.getId());
 		}
+	}
+
+	// 查询所有的科室信息便于排版页面左侧展示
+	@Override
+	public List<DepartmentVo> findDeptTree(String hoscode) {
+		//0、创建集合用于数据封装
+		List<DepartmentVo> departmentVoList = new ArrayList<>();
+		//1、根据医院编号查询所有的小科室
+		List<Department> departmentList = departmentRepository.findByHoscode(hoscode);
+		//2、根据 bigcode 进行分组，使用 collect
+		Map<String, List<Department>> collect = departmentList.
+				stream().
+				collect(Collectors.groupingBy(Department::getBigcode));
+		//3、对 map 进行遍历，得到大科室对象
+		collect.forEach((key, value) -> {
+			//key = bigcode , value = bigcode 相同的小科室集合
+			DepartmentVo departmentVo = new DepartmentVo();
+			departmentVo.setDepcode(key);//大科室编号
+			departmentVo.setDepname(value.get(0).getBigname());// 大科室名称
+			departmentVo.setChildren(this.transferDepartmentVo(value));
+
+			departmentVoList.add(departmentVo);
+		});
+		return departmentVoList;
+	}
+
+	// 对象转换
+	public List<DepartmentVo> transferDepartmentVo(List<Department> list) {
+		//department 转 departmentVo
+		List<DepartmentVo> departmentVoList = new ArrayList<>();
+
+		list.forEach(department -> {
+			DepartmentVo departmentVo = new DepartmentVo();
+
+			departmentVo.setDepcode(department.getDepcode());
+			departmentVo.setDepname(department.getDepname());
+			departmentVo.setChildren(null);
+
+			departmentVoList.add(departmentVo);
+		});
+		return departmentVoList;
 	}
 }

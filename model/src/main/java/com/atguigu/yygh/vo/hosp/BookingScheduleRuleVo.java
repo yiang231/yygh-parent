@@ -1,8 +1,5 @@
 package com.atguigu.yygh.vo.hosp;
 
-import com.atguigu.yygh.model.base.BaseEntity;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -20,7 +17,7 @@ import java.util.Date;
 @Data
 @ApiModel(description = "可预约排班规则数据")
 public class BookingScheduleRuleVo {
-	
+
 	@ApiModelProperty(value = "可预约日期")
 	@JsonFormat(pattern = "yyyy-MM-dd")
 	private Date workDate;
@@ -32,7 +29,7 @@ public class BookingScheduleRuleVo {
 	@ApiModelProperty(value = "周几")
 	private String dayOfWeek;
 
-	@ApiModelProperty(value = "就诊医生人数")
+	@ApiModelProperty(value = "就诊医生人数【排班数量】")
 	private Integer docCount;
 
 	@ApiModelProperty(value = "科室可预约数")

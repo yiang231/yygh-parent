@@ -4,6 +4,7 @@ import com.atguigu.yygh.model.hosp.Schedule;
 import com.atguigu.yygh.vo.hosp.ScheduleQueryVo;
 import org.springframework.data.domain.Page;
 
+import java.util.List;
 import java.util.Map;
 
 public interface ScheduleService {
@@ -12,4 +13,9 @@ public interface ScheduleService {
 	Page<Schedule> selectPage(int page, int limit, ScheduleQueryVo scheduleQueryVo);
 
 	void remove(String hoscode, String hosScheduleId);
+
+	// 查询页面顶部排班日期
+	Map<String, Object> getScheduleRule(long page, long limit, String hoscode, String depcode);
+
+	List<Schedule> getDetailSchedule(String hoscode, String depcode, String workDate);
 }

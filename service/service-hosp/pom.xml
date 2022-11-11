@@ -25,5 +25,10 @@
             <artifactId>service-cmn-client</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+        <!--时间日期转换-->
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+        </dependency>
     </dependencies>
 </project>
