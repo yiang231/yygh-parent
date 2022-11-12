@@ -147,9 +147,9 @@ public class HospitalServiceImpl implements HospitalService {
 		String districtCode = hosp.getDistrictCode();
 
 		String hosTypeString = dictFeignClient.getNameByValueAndDictCode(hostype, DictEnum.HOSTYPE.getDictCode());
-		String provinceString = dictFeignClient.getNameByValueAndDictCode(provinceCode);
-		String cityString = dictFeignClient.getNameByValueAndDictCode(cityCode);
-		String districtString = dictFeignClient.getNameByValueAndDictCode(districtCode);
+		String provinceString = dictFeignClient.getNameByValue(provinceCode);
+		String cityString = dictFeignClient.getNameByValue(cityCode);
+		String districtString = dictFeignClient.getNameByValue(districtCode);
 
 		String fullAddress = provinceString + cityString + districtString + hosp.getAddress();
 
