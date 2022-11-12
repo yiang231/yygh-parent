@@ -84,10 +84,10 @@ public class ScheduleServiceImpl implements ScheduleService {
 		Aggregation aggregation = Aggregation.newAggregation( // 注意：换行时将所有的分隔符号写在下一行中，这样即使单行注释也不会报错
 				Aggregation.match(criteria) // 需要对那些数据进行分组 hoscode,depcode
 				, Aggregation.group("workDate") // 按照哪个属性来进行分组聚合 workDate
-						.count().as("docCount") // 统计排班数量【医生数量】
+						.count().as("docCount") // 统计排班数量【医生数量】，从每组中提取赋值给 BookingScheduleRuleVo 中的属性
 						.sum("reservedNumber").as("reservedNumber") // 可预约数求和
 						.sum("availableNumber").as("availableNumber") // 剩余预约数求和
-						.first("workDate").as("workDate") // 每组数据中，将第一个 workDate 取出来
+						.first("workDate").as("workDate") // 每组数据中，将第一个 workDate 取出来赋值给 BookingScheduleRuleVo，每组中 workDate 是相同的
 				, Aggregation.sort(Sort.Direction.ASC, "workDate") //排序
 				, Aggregation.skip((page - 1) * limit) //分页
 				, Aggregation.limit(limit)
@@ -96,26 +96,26 @@ public class ScheduleServiceImpl implements ScheduleService {
 		AggregationResults<BookingScheduleRuleVo> aggregate = mongoTemplate.aggregate(aggregation, Schedule.class, BookingScheduleRuleVo.class);
 		// 通过 getMappedResults() 方法拿到映射结果对象
 		List<BookingScheduleRuleVo> bookingScheduleRuleVoList = aggregate.getMappedResults();
-
+		// BookingScheduleRuleVo 中其他属性赋值
 		bookingScheduleRuleVoList.forEach(bookingScheduleRuleVo -> {
-			// 排班日期转化方便前端展示
+			// 1、排班日期转化方便前端展示
 			bookingScheduleRuleVo.setWorkDateMd(bookingScheduleRuleVo.getWorkDate());
 
 			String dayOfWeek = this.getDayOfWeek(new DateTime(bookingScheduleRuleVo.getWorkDate()));
 			bookingScheduleRuleVo.setDayOfWeek(dayOfWeek);
 		});
 
-		// 总日期个数【前端分页展示】
+		// 2、总日期个数【前端分页展示】
 		Integer total = this.getTotal(hoscode, depcode);
 
-		// 医院名称
+		// 3、医院名称
 		String hosname = hospitalRepository.findByHoscode(hoscode).getHosname();
 
 		// 封装数据
 		Map<String, Object> result = new HashMap<>();
 		result.put("total", total);
 		result.put("bookingScheduleRuleList", bookingScheduleRuleVoList); // 起名不同，和前端保持一致
-
+		// 给前端进行属性封装の格式
 		Map<String, String> baseMap = new HashMap<>();
 		baseMap.put("hosname", hosname);
 		result.put("baseMap", baseMap);

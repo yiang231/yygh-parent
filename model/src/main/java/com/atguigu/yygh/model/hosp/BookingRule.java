@@ -30,14 +30,14 @@ public class BookingRule {
 	@ApiModelProperty(value = "停挂时间")
 	private String stopTime;
 
-	@ApiModelProperty(value = "退号截止天数（如：就诊前一天为-1，当天为0）")
+	@ApiModelProperty(value = "退号截止天数（如：就诊前一天为-1，当天为0）") // 最晚时间
 	private Integer quitDay;
 
 	@ApiModelProperty(value = "退号时间")
 	private String quitTime;
 
 	@ApiModelProperty(value = "预约规则")
-	private List<String> rule;
+	private List<String> rule; // 取号地点第一条，第二条……
 
 	/**
 	 * @param rule

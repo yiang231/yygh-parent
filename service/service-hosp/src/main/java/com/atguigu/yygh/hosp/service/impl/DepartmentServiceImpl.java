@@ -74,13 +74,12 @@ public class DepartmentServiceImpl implements DepartmentService {
 	@Override
 	public List<DepartmentVo> findDeptTree(String hoscode) {
 		//0、创建集合用于数据封装
-		List<DepartmentVo> departmentVoList = new ArrayList<>();
+		List<DepartmentVo> departmentVoList = new ArrayList<>(); // 大科室集合
 		//1、根据医院编号查询所有的小科室
 		List<Department> departmentList = departmentRepository.findByHoscode(hoscode);
 		//2、根据 bigcode 进行分组，使用 collect
-		Map<String, List<Department>> collect = departmentList.
-				stream().
-				collect(Collectors.groupingBy(Department::getBigcode));
+		Map<String, List<Department>> collect = departmentList.stream()
+				.collect(Collectors.groupingBy(Department::getBigcode));
 		//3、对 map 进行遍历，得到大科室对象
 		collect.forEach((key, value) -> {
 			//key = bigcode , value = bigcode 相同的小科室集合

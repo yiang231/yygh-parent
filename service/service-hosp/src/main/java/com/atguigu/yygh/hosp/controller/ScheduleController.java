@@ -49,7 +49,7 @@ public class ScheduleController {
 	 * @param workDate
 	 * @return
 	 */
-	@ApiOperation(value = "查询科室列表")
+	@ApiOperation(value = "查询某个时间排班详情")
 	@GetMapping("getScheduleDetail/{hoscode}/{depcode}/{workDate}")
 	public R getScheduleDetail(@ApiParam(name = "hoscode", value = "根据 hoscode,depcode,排班日期查询当前排版日期下的排版详情列表") @PathVariable String hoscode,
 							   @ApiParam(name = "depcode", value = "根据 hoscode,depcode,排班日期查询当前排版日期下的排版详情列表") @PathVariable String depcode,
