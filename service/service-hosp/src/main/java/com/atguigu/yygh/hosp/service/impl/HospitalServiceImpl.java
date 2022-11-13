@@ -8,6 +8,7 @@ import com.atguigu.yygh.enums.DictEnum;
 import com.atguigu.yygh.hosp.repository.HospitalRepository;
 import com.atguigu.yygh.hosp.service.HospitalService;
 import com.atguigu.yygh.hosp.service.HospitalSetService;
+import com.atguigu.yygh.model.hosp.BookingRule;
 import com.atguigu.yygh.model.hosp.Hospital;
 import com.atguigu.yygh.model.hosp.HospitalSet;
 import com.atguigu.yygh.vo.hosp.HospitalQueryVo;
@@ -23,6 +24,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -137,6 +140,24 @@ public class HospitalServiceImpl implements HospitalService {
 		Hospital hospital = hospitalRepository.findById(id).get();
 		this.packHospital(hospital);
 		return hospital;
+	}
+
+	@Override
+	public List<Hospital> findByHosname(String hosname) {
+		List<Hospital> hospitalList = hospitalRepository.findByHosnameLike(hosname);
+		hospitalList.forEach(this::packHospital);
+		return hospitalList;
+	}
+
+	@Override
+	public Map<String, Object> item(String hoscode) {
+		Hospital hospital = hospitalRepository.findByHoscode(hoscode);
+		this.packHospital(hospital);
+		BookingRule bookingRule = hospital.getBookingRule();
+		Map<String, Object> map = new HashMap<>();
+		map.put("hospital", hospital);
+		map.put("bookingRule", bookingRule);
+		return map;
 	}
 
 	private void packHospital(Hospital hosp) {
