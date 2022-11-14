@@ -1,12 +1,15 @@
 package com.atguigu.yygh.user.service.impl;
 
 import com.atguigu.yygh.common.excp.YyghException;
+import com.atguigu.yygh.common.utils.JwtHelper;
 import com.atguigu.yygh.model.user.UserInfo;
 import com.atguigu.yygh.user.mapper.UserInfoMapper;
 import com.atguigu.yygh.user.service.UserInfoService;
 import com.atguigu.yygh.vo.user.LoginVo;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -16,6 +19,9 @@ import java.util.Map;
 
 @Service
 public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> implements UserInfoService {
+	@Autowired
+	private StringRedisTemplate stringRedisTemplate;
+
 	@Override
 	public Map<String, Object> login(LoginVo loginVo) {
 		//1、手机号和验证码是否为空
@@ -28,12 +34,10 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
 			throw new YyghException(20001, "手机号和验证码不能为空");
 		}
 
-		//2、校验验证码（自动注册之前进行） 伪代码
-		//TODO
-//        if(!code.equalsIgnoreCase("从redis中根据phone获取真实的验证码")){
-//            throw new YyghException(20001,"验证码不正确");
-//        }
-
+		//2、校验验证码（自动注册之前进行）
+		String code_redis = stringRedisTemplate.boundValueOps(phone).get();
+		if (StringUtils.isEmpty(code_redis)) throw new YyghException(20001, "请先获取验证码");
+		if (!code.equalsIgnoreCase(code_redis)) throw new YyghException(20001, "验证码不正确");
 
 		//3、判断该用户是否是新用户（手机号在数据库中是否存在，不存在，直接注册）
 		//从mysql中根据手机号查询
@@ -55,9 +59,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
 		}
 
 		//5、判断用户的状态是否被锁定
-		if (userInfo.getStatus() == 0) {
-			throw new YyghException(20001, "用户被锁定，不能登录");
-		}
+		if (userInfo.getStatus() == 0) throw new YyghException(20001, "用户被锁定，不能登录");
 
 		//6、封装返回值
 		String name = "";
@@ -68,10 +70,12 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
 				name = userInfo.getPhone();
 			}
 		}
+		//生成令牌
+		String token = JwtHelper.createToken(userInfo.getId(), name);
 
 		Map<String, Object> map = new HashMap<>();
 		map.put("name", name);//右上角显示的名字
-		map.put("token", "");//用户的令牌
+		map.put("token", token);//用户的令牌
 
 		return map;
 	}

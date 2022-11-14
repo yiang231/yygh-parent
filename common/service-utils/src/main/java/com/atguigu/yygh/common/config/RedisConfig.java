@@ -1,4 +1,4 @@
-package com.atguigu.yygh.cmn.config;
+package com.atguigu.yygh.common.config;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
