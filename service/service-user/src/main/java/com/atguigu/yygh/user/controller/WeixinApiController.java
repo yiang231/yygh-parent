@@ -20,10 +20,9 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
-@Controller
+@Controller//使用RestController注解callback方法就拿不到数据
 @RequestMapping("/api/user/wx")
 public class WeixinApiController {
-
 	@Autowired
 	UserInfoService userInfoService;
 

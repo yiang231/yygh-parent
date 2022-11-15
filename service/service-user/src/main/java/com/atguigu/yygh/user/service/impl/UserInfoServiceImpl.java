@@ -21,9 +21,47 @@ import java.util.Map;
 public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> implements UserInfoService {
 	@Autowired
 	private StringRedisTemplate stringRedisTemplate;
+	@Autowired
+	private UserInfoService userInfoService;
 
 	@Override
+	//用户登录
 	public Map<String, Object> login(LoginVo loginVo) {
+		String openid = loginVo.getOpenid();
+		if (StringUtils.isEmpty(openid)) {
+			//此时不是微信扫码登录，调用验证码登录
+			return this.phoneAndCodeLogin(loginVo);
+		} else {
+			//微信扫码登录并且绑定手机号
+			return this.weixinBindPhone(loginVo);
+		}
+	}
+
+	private Map<String, Object> weixinBindPhone(LoginVo loginVo) {
+		//微信扫码登陆后绑定手机号，手机号不存在则直接赋值手机号，有则将两条数据进行合并保留一条数据
+		//1、根据openId以及手机号查询该用户
+		UserInfo userInfoByOpenId = userInfoService.selectWxByOpenId(loginVo.getOpenid());
+		UserInfo userInfoByPhone = userInfoService.selectUserByPhone(loginVo.getPhone());
+		if (StringUtils.isEmpty(userInfoByPhone)) {
+			//手机号不存在时
+			userInfoByOpenId.setPhone(loginVo.getPhone());
+		} else {
+			//手机号存在时
+			userInfoByOpenId.setPhone(userInfoByPhone.getPhone());
+			userInfoByOpenId.setName(userInfoByPhone.getName());
+			userInfoByOpenId.setCertificatesType(userInfoByPhone.getCertificatesType());
+			userInfoByOpenId.setCertificatesNo(userInfoByPhone.getCertificatesNo());
+			userInfoByOpenId.setCertificatesUrl(userInfoByPhone.getCertificatesUrl());
+			userInfoByOpenId.setAuthStatus(userInfoByPhone.getAuthStatus());
+			//先删除在更新
+			baseMapper.deleteById(userInfoByPhone.getId());
+			baseMapper.updateById(userInfoByOpenId);
+		}
+		return this.get(userInfoByOpenId);
+	}
+
+	//封装方法，手机和验证码登录
+	private Map<String, Object> phoneAndCodeLogin(LoginVo loginVo) {
 		//1、手机号和验证码是否为空
 		//手机号+验证码的登录逻辑
 		//页面上输入的手机号+短信验证码
@@ -33,7 +71,6 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
 		if (StringUtils.isEmpty(phone) || StringUtils.isEmpty(code)) {
 			throw new YyghException(20001, "手机号和验证码不能为空");
 		}
-
 		//2、校验验证码（自动注册之前进行）
 		String code_redis = stringRedisTemplate.boundValueOps(phone).get();
 		if (StringUtils.isEmpty(code_redis)) throw new YyghException(20001, "请先获取验证码");
@@ -57,27 +94,11 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
 
 			baseMapper.insert(userInfo);
 		}
-
 		//5、判断用户的状态是否被锁定
 		if (userInfo.getStatus() == 0) throw new YyghException(20001, "用户被锁定，不能登录");
 
 		//6、封装返回值
-		String name = "";
-		name = userInfo.getName();//真实姓名
-		if (StringUtils.isEmpty(name)) {
-			name = userInfo.getNickName();//微信昵称
-			if (StringUtils.isEmpty(name)) {
-				name = userInfo.getPhone();
-			}
-		}
-		//生成令牌
-		String token = JwtHelper.createToken(userInfo.getId(), name);
-
-		Map<String, Object> map = new HashMap<>();
-		map.put("name", name);//右上角显示的名字
-		map.put("token", token);//用户的令牌
-
-		return map;
+		return this.get(userInfo);
 	}
 
 	@Override
@@ -86,5 +107,28 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
 		queryWrapper.eq("openid", openid);
 		UserInfo userInfo = baseMapper.selectOne(queryWrapper);
 		return userInfo;
+	}
+
+	@Override
+	public UserInfo selectUserByPhone(String phone) {
+		QueryWrapper<UserInfo> wrapper = new QueryWrapper<>();
+		wrapper.eq("phone", phone);
+		return baseMapper.selectOne(wrapper);
+	}
+
+	private Map<String, Object> get(UserInfo userInfo) {
+		Map<String, Object> map = new HashMap<>();
+		String name = userInfo.getName();
+		if (StringUtils.isEmpty(name)) {
+			name = userInfo.getNickName();
+			if (StringUtils.isEmpty(name)) {
+				name = userInfo.getPhone();
+			}
+		}
+		Long id = userInfo.getId();
+		map.put("name", name);
+		String token = JwtHelper.createToken(id, name);
+		map.put("token", token);
+		return map;
 	}
 }

@@ -10,4 +10,6 @@ public interface UserInfoService extends IService<UserInfo> {
 	Map<String, Object> login(LoginVo loginVo);
 
 	UserInfo selectWxByOpenId(String openid);
+
+	UserInfo selectUserByPhone(String phone);
 }
