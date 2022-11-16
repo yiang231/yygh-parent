@@ -21,9 +21,9 @@ import java.util.Date;
 @ApiModel(description = "Patient")
 @TableName("patient")
 public class Patient extends BaseEntity {
-	
+
 	private static final long serialVersionUID = 1L;
-	
+
 	@ApiModelProperty(value = "用户id")
 	@TableField("user_id")
 	private Long userId;

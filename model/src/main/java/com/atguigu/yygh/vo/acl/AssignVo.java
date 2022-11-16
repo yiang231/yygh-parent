@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class AssignVo {
 
-    private Long roleId;
+	private Long roleId;
 
-    private Long[] permissionId;
+	private Long[] permissionId;
 }

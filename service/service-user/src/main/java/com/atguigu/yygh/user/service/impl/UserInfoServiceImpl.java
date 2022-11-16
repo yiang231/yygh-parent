@@ -172,6 +172,15 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
 	}
 
 	@Override
+	public void approval(Long userId, Integer authStatus) {
+		if (authStatus == 2 || authStatus == -1) {
+			UserInfo userInfo = baseMapper.selectById(userId);
+			userInfo.setAuthStatus(authStatus);
+			baseMapper.updateById(userInfo);
+		}
+	}
+
+	@Override
 	public Map<String, Object> show(Long userId) {
 		UserInfo userInfo = baseMapper.selectById(userId);
 		this.packUserInfo(userInfo);

@@ -21,9 +21,9 @@ import java.util.Date;
 @ApiModel(description = "RefundInfo")
 @TableName("refund_info")
 public class RefundInfo extends BaseEntity {
-	
+
 	private static final long serialVersionUID = 1L;
-	
+
 	@ApiModelProperty(value = "对外业务编号")
 	@TableField("out_trade_no")
 	private String outTradeNo;

@@ -4,8 +4,6 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import java.util.Date;
-
 @Data
 @ApiModel(description = "Order")
 public class OrderQueryVo {
@@ -13,7 +11,7 @@ public class OrderQueryVo {
 
 	@ApiModelProperty(value = "会员id")
 	private Long userId;
-	
+
 	@ApiModelProperty(value = "订单交易号")
 	private String outTradeNo;
 

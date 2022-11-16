@@ -1,7 +1,9 @@
 package com.atguigu.yygh.model.user;
 
-import com.atguigu.yygh.model.base.BaseEntity;
-import com.baomidou.mybatisplus.annotation.*;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -21,8 +23,8 @@ import java.util.Map;
 @Data
 @ApiModel(description = "UserInfo")
 @TableName("user_info")
-public class UserInfo  {
-	
+public class UserInfo {
+
 	private static final long serialVersionUID = 1L;
 
 	@ApiModelProperty(value = "id")
@@ -45,7 +47,7 @@ public class UserInfo  {
 
 	@ApiModelProperty(value = "其他参数")
 	@TableField(exist = false)
-	private Map<String,Object> param = new HashMap<>();
+	private Map<String, Object> param = new HashMap<>();
 
 	@ApiModelProperty(value = "微信openid")
 	@TableField("openid")

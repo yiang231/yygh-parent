@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 @ApiModel(description = "OrderCountVo")
 public class OrderCountVo {
-	
+
 	@ApiModelProperty(value = "安排日期")
 	private String reserveDate;
 

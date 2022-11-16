@@ -22,7 +22,7 @@ import java.util.Date;
 @ApiModel(description = "Order")
 @TableName("order_info")
 public class OrderInfo extends BaseEntity {
-	
+
 	private static final long serialVersionUID = 1L;
 
 	@ApiModelProperty(value = "userId")

@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 @ApiModel(description = "OrderCountQueryVo")
 public class OrderCountQueryVo {
-	
+
 	@ApiModelProperty(value = "医院编号")
 	private String hoscode;
 

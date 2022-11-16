@@ -19,9 +19,9 @@ import lombok.Data;
 @ApiModel(description = "首页Banner实体")
 @TableName("banner")
 public class Banner extends BaseEntity {
-	
+
 	private static final long serialVersionUID = 1L;
-	
+
 	@ApiModelProperty(value = "标题")
 	@TableField("title")
 	private String title;

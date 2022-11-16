@@ -11,7 +11,7 @@ import java.io.Serializable;
 public class HospitalQueryVo implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	@ApiModelProperty(value = "医院编号")
 	private String hoscode;
 

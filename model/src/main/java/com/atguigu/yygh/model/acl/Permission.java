@@ -21,9 +21,9 @@ import java.util.List;
 @ApiModel(description = "权限")
 @TableName("acl_permission")
 public class Permission extends BaseEntity {
-	
+
 	private static final long serialVersionUID = 1L;
-	
+
 	@ApiModelProperty(value = "所属上级")
 	@TableField("pid")
 	private Long pid;
