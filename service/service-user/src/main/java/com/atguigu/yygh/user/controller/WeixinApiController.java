@@ -8,6 +8,8 @@ import com.atguigu.yygh.model.user.UserInfo;
 import com.atguigu.yygh.user.service.UserInfoService;
 import com.atguigu.yygh.user.utils.ConstantPropertiesUtil;
 import com.atguigu.yygh.user.utils.HttpClientUtils;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
@@ -20,12 +22,14 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
+@Api(value = "微信登陆接口")
 @Controller//使用RestController注解callback方法就拿不到数据
 @RequestMapping("/api/user/wx")
 public class WeixinApiController {
 	@Autowired
 	UserInfoService userInfoService;
 
+	@ApiOperation(value = "从微信接口中获取用户信息")
 	@GetMapping("getLoginParam")
 	@ResponseBody
 	public R getLoginParam() throws UnsupportedEncodingException {
@@ -45,6 +49,7 @@ public class WeixinApiController {
 		return R.ok().data(map);
 	}
 
+	@ApiOperation(value = "扫码登录之后点击确认按钮，执行这个回调方法重定向")
 	@GetMapping("callback")
 	public String callBack(String code) throws Exception {
 		//1、获取临时票据 （ 扫码之后点确认，微信开放平台端自动接口重定向，并且自动传递临时票据 ）
@@ -101,7 +106,7 @@ public class WeixinApiController {
 		//callback.vue--小      myheader.vue --- 大
 		//小窗口重定向到callback.vue ,并且传递三个参数，在callback.vue（钩子方法中）中调用myheader.vue中的loginCallback方法
 		return "redirect:http://localhost:3000/weixin/callback?" +
-				"name=" + name + "&" +
+				"name=" + URLEncoder.encode(name, "UTF-8") + "&" +
 				"token=" + token + "&" +
 				"openid=" + (StringUtils.isEmpty(userInfo.getPhone()) ? openid : "");// pages/weixin/callback.vue
 	}

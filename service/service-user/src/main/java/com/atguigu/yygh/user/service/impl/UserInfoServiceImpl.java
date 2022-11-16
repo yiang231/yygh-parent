@@ -2,11 +2,17 @@ package com.atguigu.yygh.user.service.impl;
 
 import com.atguigu.yygh.common.excp.YyghException;
 import com.atguigu.yygh.common.utils.JwtHelper;
+import com.atguigu.yygh.enums.AuthStatusEnum;
+import com.atguigu.yygh.model.user.Patient;
 import com.atguigu.yygh.model.user.UserInfo;
 import com.atguigu.yygh.user.mapper.UserInfoMapper;
+import com.atguigu.yygh.user.service.PatientService;
 import com.atguigu.yygh.user.service.UserInfoService;
 import com.atguigu.yygh.vo.user.LoginVo;
+import com.atguigu.yygh.vo.user.UserAuthVo;
+import com.atguigu.yygh.vo.user.UserInfoQueryVo;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -15,14 +21,15 @@ import org.springframework.util.StringUtils;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
 public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> implements UserInfoService {
 	@Autowired
-	private StringRedisTemplate stringRedisTemplate;
+	PatientService patientService;
 	@Autowired
-	private UserInfoService userInfoService;
+	private StringRedisTemplate stringRedisTemplate;
 
 	@Override
 	//用户登录
@@ -40,8 +47,8 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
 	private Map<String, Object> weixinBindPhone(LoginVo loginVo) {
 		//微信扫码登陆后绑定手机号，手机号不存在则直接赋值手机号，有则将两条数据进行合并保留一条数据
 		//1、根据openId以及手机号查询该用户
-		UserInfo userInfoByOpenId = userInfoService.selectWxByOpenId(loginVo.getOpenid());
-		UserInfo userInfoByPhone = userInfoService.selectUserByPhone(loginVo.getPhone());
+		UserInfo userInfoByOpenId = this.selectWxByOpenId(loginVo.getOpenid());
+		UserInfo userInfoByPhone = this.selectUserByPhone(loginVo.getPhone());
 		if (StringUtils.isEmpty(userInfoByPhone)) {
 			//手机号不存在时
 			userInfoByOpenId.setPhone(loginVo.getPhone());
@@ -114,6 +121,79 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
 		QueryWrapper<UserInfo> wrapper = new QueryWrapper<>();
 		wrapper.eq("phone", phone);
 		return baseMapper.selectOne(wrapper);
+	}
+
+	//用户实名认证
+	@Override
+	public void userAuth(Long userId, UserAuthVo userAuthVo) {
+		//1、根据userid查询userInfo
+		UserInfo userInfo = baseMapper.selectById(userId);
+		//2、为userInfo赋值（页面上4个属性）
+		userInfo.setName(userAuthVo.getName());
+		userInfo.setCertificatesType(userAuthVo.getCertificatesType());
+		userInfo.setCertificatesNo(userAuthVo.getCertificatesNo());
+		userInfo.setCertificatesUrl(userAuthVo.getCertificatesUrl());
+		//3、修改认证状态 0--》1（认证中）
+		userInfo.setAuthStatus(AuthStatusEnum.AUTH_RUN.getStatus());
+
+		baseMapper.updateById(userInfo);
+	}
+
+	@Override
+	public Page<UserInfo> selectPage(Page<UserInfo> pageParam, UserInfoQueryVo userInfoQueryVo) {
+		QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<>();
+		if (userInfoQueryVo != null) {
+			String keyword = userInfoQueryVo.getKeyword();//用户名模糊查询
+			Integer authStatus = userInfoQueryVo.getAuthStatus();
+			Integer status = userInfoQueryVo.getStatus();
+			String createTimeBegin = userInfoQueryVo.getCreateTimeBegin();
+			String createTimeEnd = userInfoQueryVo.getCreateTimeEnd();
+
+			if (!StringUtils.isEmpty(keyword)) queryWrapper.like("name", keyword);
+			if (!StringUtils.isEmpty(authStatus)) queryWrapper.eq("auth_status", authStatus);
+			if (!StringUtils.isEmpty(status)) queryWrapper.eq("status", status);
+			if (!StringUtils.isEmpty(createTimeBegin)) queryWrapper.ge("create_time", createTimeBegin);
+			if (!StringUtils.isEmpty(createTimeEnd)) queryWrapper.le("create_time", createTimeEnd);
+		}
+		//Page<UserInfo> pageParam就是一个Page对象，不需要进行手动创建
+		//Page<UserInfo> page = this.page(pageParam, queryWrapper); //等价于Page<UserInfo> pageParam 不需要进行接值  直接返回即可
+		this.page(pageParam, queryWrapper);
+		pageParam.getRecords().forEach(this::packUserInfo);
+		return pageParam;
+	}
+
+	@Override
+	public void lock(Long userId, Integer status) {
+		if (status == 1 || status == 0) {
+			UserInfo userInfo = baseMapper.selectById(userId);
+			userInfo.setStatus(status);
+			baseMapper.updateById(userInfo);
+		}
+	}
+
+	@Override
+	public Map<String, Object> show(Long userId) {
+		UserInfo userInfo = baseMapper.selectById(userId);
+		this.packUserInfo(userInfo);
+
+		List<Patient> patientList = patientService.findListByUserId(userId);
+
+		Map<String, Object> map = new HashMap<>();
+		map.put("userInfo", userInfo);
+		map.put("patientList", patientList);
+
+		return map;
+	}
+
+	//给其他参数赋值
+	private void packUserInfo(UserInfo userInfo) {
+		Integer status = userInfo.getStatus();
+		Integer authStatus = userInfo.getAuthStatus();
+		String statusString = status == 0 ? "锁定" : "正常";
+		String authStatusString = AuthStatusEnum.getStatusNameByStatus(authStatus);
+
+		userInfo.getParam().put("statusString", statusString);
+		userInfo.getParam().put("authStatusString", authStatusString);
 	}
 
 	private Map<String, Object> get(UserInfo userInfo) {

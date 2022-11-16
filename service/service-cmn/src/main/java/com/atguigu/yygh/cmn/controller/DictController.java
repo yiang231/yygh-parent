@@ -57,7 +57,7 @@ public class DictController {
 	@ApiOperation(value = "根据value查询医院所在省市区")
 	@GetMapping("/getName/{value}")
 	public String getNameByValue(@ApiParam(name = "value", value = "数据字典中的value字段", required = true) @PathVariable String value) {
-		return dictService.getName(value, null);
+		return dictService.getName(value, "");
 	}
 
 	@ApiOperation(value = "医院列表下拉框省市区联动，选择省之后根据字典码查询城省下的城市")
