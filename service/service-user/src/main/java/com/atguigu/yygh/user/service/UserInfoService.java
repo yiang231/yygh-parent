@@ -27,4 +27,12 @@ public interface UserInfoService extends IService<UserInfo> {
     用户详情 （用户+就诊人）
      */
 	Map<String, Object> show(Long userId);
+
+	/**
+	 * 审批
+	 *
+	 * @param userId
+	 * @param authStatus 2、-1
+	 */
+	void approval(Long userId, Integer authStatus);
 }
