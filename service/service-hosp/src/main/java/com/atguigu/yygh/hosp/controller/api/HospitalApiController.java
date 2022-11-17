@@ -8,6 +8,7 @@ import com.atguigu.yygh.model.hosp.Hospital;
 import com.atguigu.yygh.model.hosp.Schedule;
 import com.atguigu.yygh.vo.hosp.DepartmentVo;
 import com.atguigu.yygh.vo.hosp.HospitalQueryVo;
+import com.atguigu.yygh.vo.hosp.ScheduleOrderVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,5 +88,11 @@ public class HospitalApiController {
 	public R getSchedule(@PathVariable String id) {
 		Schedule schedule = scheduleService.getById(id);
 		return R.ok().data("schedule", schedule);
+	}
+
+	@ApiOperation(value = "获取医院端排班scheduleOrderVo对象")
+	@GetMapping("inner/getScheduleOrderVo/{scheduleId}")
+	public ScheduleOrderVo getScheduleOrderVo(@PathVariable("scheduleId") String scheduleId) {
+		return scheduleService.getScheduleOrderVo(scheduleId);
 	}
 }

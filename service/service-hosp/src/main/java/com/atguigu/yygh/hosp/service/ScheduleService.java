@@ -1,6 +1,7 @@
 package com.atguigu.yygh.hosp.service;
 
 import com.atguigu.yygh.model.hosp.Schedule;
+import com.atguigu.yygh.vo.hosp.ScheduleOrderVo;
 import com.atguigu.yygh.vo.hosp.ScheduleQueryVo;
 import org.springframework.data.domain.Page;
 
@@ -22,4 +23,7 @@ public interface ScheduleService {
 	Map<String, Object> getBookingSchedule(Integer page, Integer limit, String hoscode, String depcode);
 
 	Schedule getById(String id);
+
+	//scheduleId 平台端排班的id（mg）
+	ScheduleOrderVo getScheduleOrderVo(String scheduleId);
 }

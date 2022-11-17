@@ -10,6 +10,7 @@ import com.atguigu.yygh.model.hosp.Department;
 import com.atguigu.yygh.model.hosp.Hospital;
 import com.atguigu.yygh.model.hosp.Schedule;
 import com.atguigu.yygh.vo.hosp.BookingScheduleRuleVo;
+import com.atguigu.yygh.vo.hosp.ScheduleOrderVo;
 import com.atguigu.yygh.vo.hosp.ScheduleQueryVo;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.joda.time.DateTime;
@@ -281,6 +282,46 @@ public class ScheduleServiceImpl implements ScheduleService {
 		Schedule schedule = scheduleRepository.findById(id).get();
 		this.packSchedule(schedule);
 		return schedule;
+	}
+
+	// 调用医院端接口所需要的参数从这个Vo中进行提取
+	// 创建平台订单时，也需要这个
+	@Override
+	public ScheduleOrderVo getScheduleOrderVo(String scheduleId) {
+		Schedule schedule = scheduleRepository.findById(scheduleId).get();
+		Hospital hospital = hospitalRepository.findByHoscode(schedule.getHoscode());
+		Department department = departmentService.findDepartment(schedule.getHoscode(), schedule.getDepcode());
+		BookingRule bookingRule = hospital.getBookingRule();
+
+		ScheduleOrderVo scheduleOrderVo = new ScheduleOrderVo();
+
+		BeanUtils.copyProperties(schedule, scheduleOrderVo);
+		scheduleOrderVo.setHosname(hospital.getHosname());
+		scheduleOrderVo.setDepname(department.getDepname());
+		scheduleOrderVo.setReserveDate(schedule.getWorkDate());
+		scheduleOrderVo.setReserveTime(schedule.getWorkTime());
+
+		Integer quitDay = bookingRule.getQuitDay();// 就诊前一天  -1
+		String quitTime = bookingRule.getQuitTime();// 15:30
+		String quitTimeDay = new DateTime(schedule.getWorkDate()).plusDays(quitDay).toString("yyyy-MM-dd") + " " + quitTime;
+		Date date_quitTime = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm").parseDateTime(quitTimeDay).toDate();
+		//Date date_quitTime = this.getDateTime(new Date(), quitTimeDay).toDate();
+		scheduleOrderVo.setQuitTime(date_quitTime);//退号时间
+
+		String releaseTime = bookingRule.getReleaseTime();// 08:30
+		Date date_startTime = this.getDateTime(new Date(), releaseTime).toDate();
+		scheduleOrderVo.setStartTime(date_startTime);//预约开始时间 当天
+
+		String stopTime = bookingRule.getStopTime();// 18:30
+		Integer cycle = bookingRule.getCycle();// 预约周期
+		Date date = new DateTime().plusDays(cycle).toDate();// 预约周期内最后一天退号的截止时间
+		Date date_endTime = this.getDateTime(date, stopTime).toDate();
+		scheduleOrderVo.setEndTime(date_endTime);// 预约截止时间 当天
+
+		Date date_stopTime = this.getDateTime(new Date(), stopTime).toDate();
+		scheduleOrderVo.setStopTime(date_stopTime);// 当天停止挂号时间 当天
+
+		return scheduleOrderVo;
 	}
 
 	//添加其他参数

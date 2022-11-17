@@ -17,6 +17,7 @@
         <module>service-user</module>
         <module>service-msm</module>
         <module>service-oss</module>
+        <module>service-orders</module>
     </modules>
 
     <properties>

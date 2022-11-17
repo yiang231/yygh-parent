@@ -71,4 +71,10 @@ public class PatientController {
 		patientService.removeById(id);
 		return R.ok();
 	}
+
+	@ApiOperation(value = "远程调用查看就诊人详情")
+	@GetMapping("inner/get/{id}")
+	public Patient getPatientById(@PathVariable("id") Long id) {
+		return patientService.getById(id);
+	}
 }
