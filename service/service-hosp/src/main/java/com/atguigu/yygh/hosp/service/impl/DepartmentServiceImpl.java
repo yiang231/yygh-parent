@@ -93,6 +93,11 @@ public class DepartmentServiceImpl implements DepartmentService {
 		return departmentVoList;
 	}
 
+	@Override
+	public Department findDepartment(String hoscode, String depcode) {
+		return departmentRepository.findByHoscodeAndDepcode(hoscode, depcode);
+	}
+
 	// 对象转换
 	public List<DepartmentVo> transferDepartmentVo(List<Department> list) {
 		//department 转 departmentVo

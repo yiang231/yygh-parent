@@ -3,7 +3,9 @@ package com.atguigu.yygh.hosp.controller.api;
 import com.atguigu.yygh.common.result.R;
 import com.atguigu.yygh.hosp.service.DepartmentService;
 import com.atguigu.yygh.hosp.service.HospitalService;
+import com.atguigu.yygh.hosp.service.ScheduleService;
 import com.atguigu.yygh.model.hosp.Hospital;
+import com.atguigu.yygh.model.hosp.Schedule;
 import com.atguigu.yygh.vo.hosp.DepartmentVo;
 import com.atguigu.yygh.vo.hosp.HospitalQueryVo;
 import io.swagger.annotations.Api;
@@ -26,6 +28,8 @@ public class HospitalApiController {
 	private HospitalService hospitalService;
 	@Autowired
 	private DepartmentService departmentService;
+	@Autowired
+	private ScheduleService scheduleService;
 
 	@ApiOperation(value = "首页查询医院列表")
 	@GetMapping("{page}/{limit}")
@@ -53,5 +57,27 @@ public class HospitalApiController {
 	public R department(@PathVariable String hoscode) {
 		List<DepartmentVo> list = departmentService.findDeptTree(hoscode);
 		return R.ok().data("list", list);
+	}
+
+	//医院详情页点击小科室跳转到挂号详情页面，调用该接口
+	//日期分页
+	@ApiOperation(value = "查询日期分页")
+	@GetMapping("auth/getBookingScheduleRule/{page}/{limit}/{hoscode}/{depcode}")
+	public R getBookingSchedule(@PathVariable Integer page
+			, @PathVariable Integer limit
+			, @PathVariable String hoscode
+			, @PathVariable String depcode) {
+		// 日期分页的每一块
+		Map<String, Object> map = scheduleService.getBookingSchedule(page, limit, hoscode, depcode);
+		return R.ok().data(map);
+	}
+
+	@ApiOperation(value = "查询排班列表")
+	@GetMapping("auth/findScheduleList/{hoscode}/{depcode}/{workDate}")
+	public R getScheduleDetail(@PathVariable String hoscode,
+							   @PathVariable String depcode,
+							   @PathVariable String workDate) {
+		List<Schedule> scheduleList = scheduleService.getDetailSchedule(hoscode, depcode, workDate);
+		return R.ok().data("scheduleList", scheduleList);
 	}
 }
