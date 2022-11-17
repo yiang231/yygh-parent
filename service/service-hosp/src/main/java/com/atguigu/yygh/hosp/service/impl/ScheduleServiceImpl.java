@@ -276,6 +276,27 @@ public class ScheduleServiceImpl implements ScheduleService {
 		return result;
 	}
 
+	@Override
+	public Schedule getById(String id) {
+		Schedule schedule = scheduleRepository.findById(id).get();
+		this.packSchedule(schedule);
+		return schedule;
+	}
+
+	//添加其他参数
+	private void packSchedule(Schedule schedule) {
+		//查询医院名称 + 科室名称
+		String hoscode = schedule.getHoscode();
+		String depcode = schedule.getDepcode();
+
+		Hospital hospital = hospitalRepository.findByHoscode(hoscode);
+		Department department = departmentService.findDepartment(hoscode, depcode);
+
+		schedule.getParam().put("hosname", hospital.getHosname());
+		schedule.getParam().put("depname", department.getDepname());
+		schedule.getParam().put("dayOfWeek", this.getDayOfWeek(new DateTime(schedule.getWorkDate())));
+	}
+
 	//遍历获取ruleVo对象 效率低下
 	private BookingScheduleRuleVo getRuleVoByDate(Date date, List<BookingScheduleRuleVo> bookingScheduleRuleVoList) {// 从pageDateList中找到date对应的ruleVo对象
 		for (BookingScheduleRuleVo bookingScheduleRuleVo : bookingScheduleRuleVoList) {

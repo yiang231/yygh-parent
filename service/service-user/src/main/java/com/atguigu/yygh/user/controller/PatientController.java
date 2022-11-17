@@ -26,6 +26,7 @@ public class PatientController {
 	@Autowired
 	PatientService patientService;
 
+	//点击剩余按钮，查询就诊人列表
 	//查询就诊人列表
 	@ApiOperation(value = "查询所有的就诊人")
 	@GetMapping("auth/findAll")

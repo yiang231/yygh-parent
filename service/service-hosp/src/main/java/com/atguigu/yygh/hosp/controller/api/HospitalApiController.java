@@ -80,4 +80,12 @@ public class HospitalApiController {
 		List<Schedule> scheduleList = scheduleService.getDetailSchedule(hoscode, depcode, workDate);
 		return R.ok().data("scheduleList", scheduleList);
 	}
+
+	//点击剩余按钮，查询排班详情
+	@ApiOperation(value = "查询排班详情")
+	@GetMapping("getSchedule/{id}")
+	public R getSchedule(@PathVariable String id) {
+		Schedule schedule = scheduleService.getById(id);
+		return R.ok().data("schedule", schedule);
+	}
 }
