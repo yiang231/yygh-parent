@@ -1,8 +1,12 @@
 package com.atguigu.yygh.order.controller;
 
 import com.atguigu.yygh.common.result.R;
+import com.atguigu.yygh.common.utils.JwtHelper;
+import com.atguigu.yygh.enums.OrderStatusEnum;
 import com.atguigu.yygh.model.order.OrderInfo;
 import com.atguigu.yygh.order.service.OrderService;
+import com.atguigu.yygh.vo.order.OrderQueryVo;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +15,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
+import java.util.Map;
 
 @Api(value = "预约挂号接口")
 @RestController
@@ -33,5 +41,35 @@ public class OrderApiController {
 	public R getOrder(@PathVariable Long orderId) {
 		OrderInfo orderInfo = orderService.getOrderInfo(orderId);
 		return R.ok().data("orderInfo", orderInfo);
+	}
+
+	//订单列表
+	@ApiOperation(value = "订单列表带参数的分页查询")
+	@GetMapping("auth/{page}/{limit}")
+	public R list(@PathVariable Long page
+			, @PathVariable Long limit
+			, OrderQueryVo orderQueryVo
+			, HttpServletRequest request) {
+		//service_utils  -->  JwtHelper
+		//service_user ---> AuthContextHolder
+		//注意：订单服务下不能添加用户服务的依赖
+		// 或者使用AuthContextHolder也可以实现
+		Long userId = JwtHelper.getUserId(request.getHeader("token"));
+		// AuthContextHolder.getUserId(request)
+		orderQueryVo.setUserId(userId);
+
+		Page<OrderInfo> pageModel = new Page<>(page, limit);
+
+		orderService.selectPage(pageModel, orderQueryVo);
+
+		return R.ok().data("pageModel", pageModel);
+	}
+
+	//订单状态列表
+	@ApiOperation(value = "订单列表状态查询")
+	@GetMapping("auth/getStatusList")
+	public R getStatusList() {
+		List<Map<String, Object>> statusList = OrderStatusEnum.getStatusList();
+		return R.ok().data("statusList", statusList);
 	}
 }

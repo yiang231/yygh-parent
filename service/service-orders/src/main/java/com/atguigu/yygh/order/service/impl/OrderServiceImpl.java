@@ -14,10 +14,15 @@ import com.atguigu.yygh.user.client.PatientFeignClient;
 import com.atguigu.yygh.vo.hosp.ScheduleOrderVo;
 import com.atguigu.yygh.vo.msm.MsmVo;
 import com.atguigu.yygh.vo.order.OrderMqVo;
+import com.atguigu.yygh.vo.order.OrderQueryVo;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -132,6 +137,31 @@ public class OrderServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo> im
 		OrderInfo orderInfo = baseMapper.selectById(id);
 		this.packOrderInfo(orderInfo);
 		return orderInfo;
+	}
+
+	//带条件参数的分页查询
+	@Override
+	public IPage<OrderInfo> selectPage(Page<OrderInfo> pageParam, OrderQueryVo orderQueryVo) {
+		QueryWrapper<OrderInfo> queryWrapper = new QueryWrapper<>();
+		if (orderQueryVo != null) {
+			Long userId = orderQueryVo.getUserId();
+			if (!StringUtils.isEmpty(userId)) {
+				queryWrapper.eq("user_id", userId);
+			}
+			Long patientId = orderQueryVo.getPatientId();
+			if (!StringUtils.isEmpty(patientId)) {
+				queryWrapper.eq("patient_id", patientId);
+			}
+			String orderStatus = orderQueryVo.getOrderStatus();
+			if (!StringUtils.isEmpty(orderStatus)) {
+				queryWrapper.eq("order_status", orderStatus);
+			}
+		}
+		this.page(pageParam, queryWrapper);
+
+		// 订单状态进行转换
+		pageParam.getRecords().forEach(this::packOrderInfo);
+		return pageParam;
 	}
 
 	private void afterSaveOrder(String scheduleId, Integer availableNumber, Integer reservedNumber, Patient patient) {
