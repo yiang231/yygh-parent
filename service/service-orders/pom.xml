@@ -31,5 +31,15 @@
             <artifactId>service-hosp-client</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+        <!--时间日期转换-->
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.atguigu</groupId>
+            <artifactId>rabbit_util</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 </project>

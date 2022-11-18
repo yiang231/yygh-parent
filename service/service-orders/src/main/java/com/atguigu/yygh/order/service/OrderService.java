@@ -10,4 +10,7 @@ public interface OrderService extends IService<OrderInfo> {
 	 * @return （平台端的订单id） ---> 下一个页面，订单详情，根据id查询订单（mg）
 	 */
 	Long saveOrder(String scheduleId, Long patientId);
+
+	// 根据订单第查询订单详情（`yygh_order``order_info`）
+	OrderInfo getOrderInfo(Long id);
 }

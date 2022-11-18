@@ -3,8 +3,10 @@ package com.atguigu.yygh.hosp.controller.api;
 import com.atguigu.yygh.common.result.R;
 import com.atguigu.yygh.hosp.service.DepartmentService;
 import com.atguigu.yygh.hosp.service.HospitalService;
+import com.atguigu.yygh.hosp.service.HospitalSetService;
 import com.atguigu.yygh.hosp.service.ScheduleService;
 import com.atguigu.yygh.model.hosp.Hospital;
+import com.atguigu.yygh.model.hosp.HospitalSet;
 import com.atguigu.yygh.model.hosp.Schedule;
 import com.atguigu.yygh.vo.hosp.DepartmentVo;
 import com.atguigu.yygh.vo.hosp.HospitalQueryVo;
@@ -31,6 +33,8 @@ public class HospitalApiController {
 	private DepartmentService departmentService;
 	@Autowired
 	private ScheduleService scheduleService;
+	@Autowired
+	private HospitalSetService hospitalSetService;
 
 	@ApiOperation(value = "首页查询医院列表")
 	@GetMapping("{page}/{limit}")
@@ -94,5 +98,12 @@ public class HospitalApiController {
 	@GetMapping("inner/getScheduleOrderVo/{scheduleId}")
 	public ScheduleOrderVo getScheduleOrderVo(@PathVariable("scheduleId") String scheduleId) {
 		return scheduleService.getScheduleOrderVo(scheduleId);
+	}
+
+	@ApiOperation(value = "从医院设置接口获取医院的接口地址")
+	@GetMapping("/getApiUrlByHoscode/{hoscode}")
+	public String getApiUrlByHoscode(@PathVariable String hoscode) {
+		HospitalSet hospitalSet = hospitalSetService.findByHoscode(hoscode);
+		return hospitalSet.getApiUrl(); // 从医院设置获得医院接口地址
 	}
 }

@@ -324,6 +324,15 @@ public class ScheduleServiceImpl implements ScheduleService {
 		return scheduleOrderVo;
 	}
 
+	@Override
+	public void updateSchedule(String scheduleId, Integer availableNumber, Integer reservedNumber) {
+		//从mg中查询排班，更新number
+		Schedule schedule = scheduleRepository.findById(scheduleId).get();
+		schedule.setAvailableNumber(availableNumber);
+		schedule.setReservedNumber(reservedNumber);
+		scheduleRepository.save(schedule);
+	}
+
 	//添加其他参数
 	private void packSchedule(Schedule schedule) {
 		//查询医院名称 + 科室名称

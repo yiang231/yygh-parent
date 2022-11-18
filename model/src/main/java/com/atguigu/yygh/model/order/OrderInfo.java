@@ -106,6 +106,4 @@ public class OrderInfo extends BaseEntity {
 	@ApiModelProperty(value = "订单状态")
 	@TableField("order_status")
 	private Integer orderStatus;
-
 }
-

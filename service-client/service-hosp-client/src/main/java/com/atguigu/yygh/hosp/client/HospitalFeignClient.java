@@ -9,4 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface HospitalFeignClient {
 	@GetMapping("/api/hosp/hospital/inner/getScheduleOrderVo/{scheduleId}")
 	public ScheduleOrderVo getScheduleOrderVo(@PathVariable("scheduleId") String scheduleId);
+
+	@GetMapping("/api/hosp/hospital/getApiUrlByHoscode/{hoscode}")
+	public String getApiUrlByHoscode(@PathVariable String hoscode);
 }

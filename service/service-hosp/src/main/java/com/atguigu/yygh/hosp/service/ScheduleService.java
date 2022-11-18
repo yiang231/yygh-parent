@@ -26,4 +26,6 @@ public interface ScheduleService {
 
 	//scheduleId 平台端排班的id（mg）
 	ScheduleOrderVo getScheduleOrderVo(String scheduleId);
+
+	void updateSchedule(String scheduleId, Integer availableNumber, Integer reservedNumber);
 }
