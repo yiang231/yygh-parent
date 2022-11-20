@@ -30,8 +30,8 @@ public class RedisConfig {
 	 */
 	//具体见这个RedisAutoConfiguration配置类
 	@Bean
-	public RedisTemplate<Object, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
-		RedisTemplate<Object, Object> redisTemplate = new RedisTemplate<>();
+	public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+		RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
 		redisTemplate.setConnectionFactory(redisConnectionFactory);
 		Jackson2JsonRedisSerializer jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer(Object.class);
 		//解决查询缓存转换异常的问题

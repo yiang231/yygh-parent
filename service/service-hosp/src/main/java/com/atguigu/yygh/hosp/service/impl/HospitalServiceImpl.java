@@ -1,7 +1,7 @@
 package com.atguigu.yygh.hosp.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.atguigu.cmn.client.DictFeignClient;
+import com.atguigu.yygh.cmn.client.DictFeignClient;
 import com.atguigu.yygh.common.excp.YyghException;
 import com.atguigu.yygh.common.utils.MD5;
 import com.atguigu.yygh.enums.DictEnum;

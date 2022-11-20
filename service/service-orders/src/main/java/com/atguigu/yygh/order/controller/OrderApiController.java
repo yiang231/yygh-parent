@@ -72,4 +72,10 @@ public class OrderApiController {
 		List<Map<String, Object>> statusList = OrderStatusEnum.getStatusList();
 		return R.ok().data("statusList", statusList);
 	}
+
+	@ApiOperation(value = "根据订单id查询订单")
+	@GetMapping("getOrderInfoById/{orderId}")
+	public OrderInfo getOrderInfoById(@PathVariable Long orderId) {
+		return orderService.getById(orderId);
+	}
 }

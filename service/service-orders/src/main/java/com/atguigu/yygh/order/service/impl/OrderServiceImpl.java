@@ -40,6 +40,12 @@ public class OrderServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo> im
 
 	@Override
 	public Long saveOrder(String scheduleId, Long patientId) {
+		//-1、 当前就诊人在该排班下是否已经挂号
+		//SELECT * FROM `order_info`
+		//WHERE user_id = 53
+		//AND patient_id = 6
+		//AND hos_schedule_id = 109
+
 		//查询排班（医院服务，mg）+查询就诊人（用户服务）
 		//0、查询数据，为调用医院端接口做准备
 		Patient patient = patientFeignClient.getPatientById(patientId);

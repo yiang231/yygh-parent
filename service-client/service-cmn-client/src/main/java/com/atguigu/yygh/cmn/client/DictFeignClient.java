@@ -1,4 +1,4 @@
-package com.atguigu.cmn.client;
+package com.atguigu.yygh.cmn.client;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;

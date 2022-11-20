@@ -1,6 +1,6 @@
 package com.atguigu.yygh.user.service.impl;
 
-import com.atguigu.cmn.client.DictFeignClient;
+import com.atguigu.yygh.cmn.client.DictFeignClient;
 import com.atguigu.yygh.model.user.Patient;
 import com.atguigu.yygh.user.mapper.PatientMapper;
 import com.atguigu.yygh.user.service.PatientService;
