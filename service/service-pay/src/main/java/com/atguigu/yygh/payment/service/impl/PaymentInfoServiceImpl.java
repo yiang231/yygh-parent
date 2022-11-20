@@ -1,19 +1,27 @@
 package com.atguigu.yygh.payment.service.impl;
 
+import com.atguigu.yygh.enums.OrderStatusEnum;
 import com.atguigu.yygh.enums.PaymentStatusEnum;
+import com.atguigu.yygh.enums.PaymentTypeEnum;
 import com.atguigu.yygh.model.order.OrderInfo;
 import com.atguigu.yygh.model.order.PaymentInfo;
+import com.atguigu.yygh.orders.client.OrdersFeignClient;
 import com.atguigu.yygh.payment.mapper.PaymentInfoMapper;
 import com.atguigu.yygh.payment.service.PaymentInfoService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.joda.time.DateTime;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.Map;
 
 @Service
 public class PaymentInfoServiceImpl extends ServiceImpl<PaymentInfoMapper, PaymentInfo> implements PaymentInfoService {
+	@Autowired
+	OrdersFeignClient ordersFeignClient;
+
 	// 创建支付记录
 	@Override
 	public void savePaymentInfo(OrderInfo orderInfo, Integer paymentType) {
@@ -46,5 +54,29 @@ public class PaymentInfoServiceImpl extends ServiceImpl<PaymentInfoMapper, Payme
 		paymentInfo.setUpdateTime(new Date());
 
 		baseMapper.insert(paymentInfo);
+	}
+
+	// 支付成功后修改订单，以及对应的支付记录
+	@Override
+	public void afterPaySuccess(Long orderId, Map<String, String> map) {
+		OrderInfo orderInfo = ordersFeignClient.getOrderInfoById(orderId);
+		orderInfo.setOrderStatus(OrderStatusEnum.PAID.getStatus());//1 -- 已支付
+		orderInfo.setUpdateTime(new Date());
+		ordersFeignClient.updateById(orderInfo);
+
+		//查询订单的支付记录
+		QueryWrapper<PaymentInfo> queryWrapper = new QueryWrapper<>();
+		queryWrapper.eq("out_trade_no", orderInfo.getOutTradeNo());
+		queryWrapper.eq("payment_type", PaymentTypeEnum.WEIXIN.getStatus());
+
+		PaymentInfo paymentInfo = baseMapper.selectOne(queryWrapper);
+		paymentInfo.setUpdateTime(new Date());
+		paymentInfo.setPaymentStatus(PaymentStatusEnum.PAID.getStatus());//2---已支付
+		String transaction_id = map.get("transaction_id");
+		paymentInfo.setTradeNo(transaction_id);//微信端支付流水号
+		paymentInfo.setCallbackTime(new Date());
+		paymentInfo.setCallbackContent(map.toString());
+
+		baseMapper.updateById(paymentInfo);
 	}
 }

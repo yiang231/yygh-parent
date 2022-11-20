@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -73,9 +75,15 @@ public class OrderApiController {
 		return R.ok().data("statusList", statusList);
 	}
 
-	@ApiOperation(value = "根据订单id查询订单")
+	@ApiOperation(value = "根据订单id查询订单，支付时使用")
 	@GetMapping("getOrderInfoById/{orderId}")
 	public OrderInfo getOrderInfoById(@PathVariable Long orderId) {
 		return orderService.getById(orderId);
+	}
+
+	@ApiOperation(value = "更新订单信息，支付完成时时使用")
+	@PutMapping("updateById")
+	public void updateById(@RequestBody OrderInfo orderInfo) {
+		orderService.updateById(orderInfo);
 	}
 }

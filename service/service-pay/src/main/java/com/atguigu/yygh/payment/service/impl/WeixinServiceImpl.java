@@ -95,4 +95,37 @@ public class WeixinServiceImpl implements WeixinService {
 
 		return null;//支付链接在map中
 	}
+
+	@Override
+	public Map<String, String> queryPayStatus(Long orderId) {
+		//1、根据订单id查询订单，为了获取到outTradeNo
+		OrderInfo orderInfo = ordersFeignClient.getOrderInfoById(orderId); // 远程调用
+
+		// 2、封装参数
+		Map<String, String> map = new HashMap<>();
+		map.put("appid", ConstantPropertiesUtils.APPID);
+		map.put("mch_id", ConstantPropertiesUtils.PARTNER);
+		map.put("out_trade_no", orderInfo.getOutTradeNo());
+		map.put("nonce_str", WXPayUtil.generateNonceStr());
+
+		try {
+			//3、map转成xml格式的字符串，并且自动添加sign签名
+			String xmlString = WXPayUtil.generateSignedXml(map, ConstantPropertiesUtils.PARTNERKEY);
+
+			//4、发请求（查询订单状态）
+			String url = "https://api.mch.weixin.qq.com/pay/orderquery";
+			HttpClient httpClient = new HttpClient(url);
+			httpClient.setHttps(true);
+			httpClient.setXmlParam(xmlString);
+			httpClient.post();
+
+			//5、微信端返回值
+			String content = httpClient.getContent();// 返回值
+			Map<String, String> resultMap = WXPayUtil.xmlToMap(content);
+			return resultMap;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 }
