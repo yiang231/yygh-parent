@@ -16,6 +16,7 @@
         <module>service-user-client</module>
         <module>service-hosp-client</module>
         <module>service-orders-client</module>
+        <module>service-pay-client</module>
     </modules>
     <dependencies>
         <dependency>

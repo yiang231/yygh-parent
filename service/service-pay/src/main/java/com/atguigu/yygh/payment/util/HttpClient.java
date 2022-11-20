@@ -159,7 +159,7 @@ public class HttpClient {
 					SSLContext sslContext = SSLContexts.custom().loadKeyMaterial(keystore, partnerId2charArray).build();
 					SSLConnectionSocketFactory sslsf =
 							new SSLConnectionSocketFactory(sslContext,
-									new String[]{"TLSv1"},
+									new String[]{"TLSv1.2"},//不要使用 TLSv1 注释这行也可以
 									null,
 									SSLConnectionSocketFactory.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER);
 					httpClient = HttpClients.custom().setSSLSocketFactory(sslsf).build();

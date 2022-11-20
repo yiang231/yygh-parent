@@ -86,4 +86,12 @@ public class OrderApiController {
 	public void updateById(@RequestBody OrderInfo orderInfo) {
 		orderService.updateById(orderInfo);
 	}
+
+	//取消预约
+	@ApiOperation(value = "取消订单")
+	@GetMapping("auth/cancelOrder/{orderId}")
+	public R cancelOrder(@PathVariable("orderId") Long orderId) {
+		Boolean flag = orderService.cancelOrder(orderId);
+		return R.ok().data("flag", flag);
+	}
 }

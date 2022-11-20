@@ -1,15 +1,20 @@
 package com.atguigu.yygh.order.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.atguigu.yygh.common.excp.YyghException;
 import com.atguigu.yygh.common.utils.HttpRequestHelper;
 import com.atguigu.yygh.enums.OrderStatusEnum;
+import com.atguigu.yygh.enums.PaymentStatusEnum;
+import com.atguigu.yygh.enums.PaymentTypeEnum;
 import com.atguigu.yygh.hosp.client.HospitalFeignClient;
 import com.atguigu.yygh.model.order.OrderInfo;
+import com.atguigu.yygh.model.order.PaymentInfo;
 import com.atguigu.yygh.model.user.Patient;
 import com.atguigu.yygh.mq.service.MqConst;
 import com.atguigu.yygh.mq.service.RabbitService;
 import com.atguigu.yygh.order.mapper.OrderInfoMapper;
 import com.atguigu.yygh.order.service.OrderService;
+import com.atguigu.yygh.pay.client.PayFeignClient;
 import com.atguigu.yygh.user.client.PatientFeignClient;
 import com.atguigu.yygh.vo.hosp.ScheduleOrderVo;
 import com.atguigu.yygh.vo.msm.MsmVo;
@@ -37,6 +42,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo> im
 	private HospitalFeignClient hospitalFeignClient;
 	@Autowired
 	private RabbitService rabbitService;
+	@Autowired
+	private PayFeignClient payFeignClient;
 
 	@Override
 	public Long saveOrder(String scheduleId, Long patientId) {
@@ -107,7 +114,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo> im
 			orderInfo.setDepcode(scheduleOrderVo.getDepcode());
 			orderInfo.setDepname(scheduleOrderVo.getDepname());
 			orderInfo.setTitle(scheduleOrderVo.getTitle());
-			orderInfo.setScheduleId(scheduleOrderVo.getHosScheduleId());
+//            orderInfo.setScheduleId(scheduleOrderVo.getHosScheduleId());//医院端排班的id
+			orderInfo.setScheduleId(scheduleId);//mg中排班id
 			orderInfo.setReserveDate(scheduleOrderVo.getReserveDate());
 			orderInfo.setReserveTime(scheduleOrderVo.getReserveTime());
 			orderInfo.setPatientId(patient.getId());
@@ -168,6 +176,66 @@ public class OrderServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo> im
 		// 订单状态进行转换
 		pageParam.getRecords().forEach(this::packOrderInfo);
 		return pageParam;
+	}
+
+	@Override
+	public Boolean cancelOrder(Long orderId) {
+		//1、判断当前订单是否允许被取消
+		OrderInfo orderInfo = baseMapper.selectById(orderId);//平台端的订单
+		Date quitTime = orderInfo.getQuitTime();
+		DateTime dateTime = new DateTime(quitTime);
+		if (dateTime.isBeforeNow()) {
+			throw new YyghException(20001, "退号时间已过");
+		}
+
+		//2、调用医院端退号接口
+		String apiUrl = hospitalFeignClient.getApiUrlByHoscode(orderInfo.getHoscode());
+		String url = "http://" + apiUrl + "/order/updateCancelStatus";
+
+		Map<String, Object> map = new HashMap<>();
+		map.put("hoscode", orderInfo.getHoscode());
+		map.put("hosRecordId", orderInfo.getHosRecordId());//医院端订单的id
+//        map.put("timestamp",System.currentTimeMillis());
+//        map.put("sign","");
+		JSONObject jsonObject = HttpRequestHelper.sendRequest(map, url);
+
+		if (jsonObject.getInteger("code") != 200) {
+			//医院端退号接口调用失败
+			throw new YyghException(20001, "医院端退号接口调用失败");
+//            return false;
+		}
+
+//        Integer orderStatus = orderInfo.getOrderStatus();//1
+
+		//3、平台端订单状态改成-1
+		orderInfo.setOrderStatus(OrderStatusEnum.CANCLE.getStatus());
+		baseMapper.updateById(orderInfo);
+
+		//4、判断是否需要退款
+		//根据订单id和支付方式，获取支付记录
+		PaymentInfo paymentInfo = payFeignClient.getPaymentInfo(orderId, PaymentTypeEnum.WEIXIN.getStatus());
+		if (paymentInfo.getPaymentStatus() == PaymentStatusEnum.PAID.getStatus()) {
+			//已支付
+			boolean bol = payFeignClient.isRefund(paymentInfo);//判断是否已经完成退款
+			if (!bol) {
+				//退款失败
+				throw new YyghException(20001, "退款失败");
+			}
+		}
+		//5、mq
+		OrderMqVo orderMqVo = new OrderMqVo();
+		orderMqVo.setScheduleId(orderInfo.getScheduleId());//mg中排班id
+//        orderMqVo.setReservedNumber();
+//        orderMqVo.setAvailableNumber();
+
+		MsmVo msmVo = new MsmVo();
+		msmVo.setPhone(orderInfo.getPatientPhone());//就诊人手机号
+		msmVo.getParam().put("message", "订单取消成功");
+		orderMqVo.setMsmVo(msmVo);
+
+		rabbitService.sendMessage(MqConst.EXCHANGE_DIRECT_ORDER, MqConst.ROUTING_ORDER, orderMqVo);
+
+		return true;
 	}
 
 	private void afterSaveOrder(String scheduleId, Integer availableNumber, Integer reservedNumber, Patient patient) {

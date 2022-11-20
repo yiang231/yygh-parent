@@ -1,5 +1,7 @@
 package com.atguigu.yygh.payment.service;
 
+import com.atguigu.yygh.model.order.PaymentInfo;
+
 import java.util.Map;
 
 public interface WeixinService {
@@ -10,4 +12,6 @@ public interface WeixinService {
 	Map createNative(Long orderId);
 
 	Map<String, String> queryPayStatus(Long orderId);
+
+	boolean isRefund(PaymentInfo paymentInfo);
 }

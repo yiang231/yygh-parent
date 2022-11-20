@@ -78,5 +78,15 @@ public class PaymentInfoServiceImpl extends ServiceImpl<PaymentInfoMapper, Payme
 		paymentInfo.setCallbackContent(map.toString());
 
 		baseMapper.updateById(paymentInfo);
+
+		// 此时医院端的订单状态没有修改
+	}
+
+	@Override
+	public PaymentInfo getPaymentInfo(Long orderId, Integer payType) {
+		QueryWrapper<PaymentInfo> queryWrapper = new QueryWrapper<>();
+		queryWrapper.eq("order_id", orderId);
+		queryWrapper.eq("payment_type", payType);
+		return baseMapper.selectOne(queryWrapper);
 	}
 }
