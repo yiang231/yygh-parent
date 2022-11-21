@@ -31,6 +31,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -236,6 +237,28 @@ public class OrderServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo> im
 		rabbitService.sendMessage(MqConst.EXCHANGE_DIRECT_ORDER, MqConst.ROUTING_ORDER, orderMqVo);
 
 		return true;
+	}
+
+	// 就医提醒
+	@Override
+	public void patientTips() {
+		// 查询当天时间和就诊日期匹配的订单的集合
+		QueryWrapper<OrderInfo> queryWrapper = new QueryWrapper<>();
+		String date = new DateTime().toString("yyyy-MM-dd");
+		queryWrapper.eq("reserve_date", date);
+
+		List<OrderInfo> list = this.list(queryWrapper);
+
+		list.forEach(orderInfo -> {
+			String patientName = orderInfo.getPatientName();
+			String patientPhone = orderInfo.getPatientPhone();
+
+			MsmVo msmVo = new MsmVo();
+			msmVo.setPhone(patientPhone);
+			msmVo.getParam().put("message", patientName + " 你好，" + "该吃药了");
+
+			rabbitService.sendMessage(MqConst.EXCHANGE_DIRECT_MSM, MqConst.ROUTING_MSM_ITEM, msmVo);
+		});
 	}
 
 	private void afterSaveOrder(String scheduleId, Integer availableNumber, Integer reservedNumber, Patient patient) {
