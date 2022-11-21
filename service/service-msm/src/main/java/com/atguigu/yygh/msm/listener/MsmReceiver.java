@@ -9,6 +9,7 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Date;
 
 @Component
 public class MsmReceiver {
@@ -24,6 +25,6 @@ public class MsmReceiver {
 		String templateCode = msmVo.getTemplateCode();
 		Object message = msmVo.getParam().get("message");
 
-		System.out.println("手机号：" + phone + "|" + "短信内容：" + message);
+		System.out.println(new Date() + " " + "手机号：" + phone + "|" + "短信内容：" + message);
 	}
 }

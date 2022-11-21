@@ -1,5 +1,6 @@
 package com.atguigu.yygh.payment.util;
 
+import com.github.wxpay.sdk.WXPayConfig;
 import org.apache.http.Consts;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
@@ -22,9 +23,8 @@ import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
 
 import javax.net.ssl.SSLContext;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -152,7 +152,8 @@ public class HttpClient {
 			if (isHttps) {
 				if (isCert) {
 					//TODO 需要完善
-					FileInputStream inputStream = new FileInputStream(new File(ConstantPropertiesUtils.CERT));
+//					FileInputStream inputStream = new FileInputStream(new File(ConstantPropertiesUtils.CERT));
+					InputStream inputStream = WXPayConfig.class.getClassLoader().getResourceAsStream(ConstantPropertiesUtils.CERT);
 					KeyStore keystore = KeyStore.getInstance("PKCS12");
 					char[] partnerId2charArray = certPassword.toCharArray();
 					keystore.load(inputStream, partnerId2charArray);

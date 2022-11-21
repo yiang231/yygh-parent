@@ -10,7 +10,7 @@ public class ConstantPropertiesUtils implements InitializingBean {
 	public static String PARTNER;
 	public static String PARTNERKEY;
 	public static String CERT;
-	@Value("${weixin.cert}")//证书不要放在项目中会无法识别路径
+	@Value("${weixin.cert}")
 	private String cert;
 	@Value("${weixin.pay.appid}")
 	private String appid;
