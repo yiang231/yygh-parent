@@ -7,8 +7,6 @@ import lombok.Data;
 @Data
 @ApiModel(description = "Order")
 public class OrderQueryVo {
-
-
 	@ApiModelProperty(value = "会员id")
 	private Long userId;
 
@@ -33,6 +31,4 @@ public class OrderQueryVo {
 	@ApiModelProperty(value = "创建时间")
 	private String createTimeBegin;
 	private String createTimeEnd;
-
 }
-

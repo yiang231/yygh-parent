@@ -17,7 +17,6 @@ import java.util.Date;
 @Data
 @ApiModel(description = "可预约排班规则数据")
 public class BookingScheduleRuleVo {
-
 	@ApiModelProperty(value = "可预约日期")
 	@JsonFormat(pattern = "yyyy-MM-dd")
 	private Date workDate;
@@ -41,4 +40,3 @@ public class BookingScheduleRuleVo {
 	@ApiModelProperty(value = "状态 0：正常 1：即将放号 -1：当天已停止挂号")
 	private Integer status;
 }
-

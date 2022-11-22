@@ -20,6 +20,4 @@ public class OrderMqVo {
 
 	@ApiModelProperty(value = "短信实体")
 	private MsmVo msmVo;
-
 }
-

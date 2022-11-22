@@ -15,7 +15,6 @@ import java.io.Serializable;
 @Data
 //实现数据字典导出需要实现序列化接口
 public class DictEeVo implements Serializable {
-
 	@ExcelProperty(value = "id", index = 0)
 	private Long id;
 
@@ -30,6 +29,4 @@ public class DictEeVo implements Serializable {
 
 	@ExcelProperty(value = "编码", index = 4)
 	private String dictCode;
-
 }
-

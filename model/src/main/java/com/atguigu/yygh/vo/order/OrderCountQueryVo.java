@@ -17,6 +17,4 @@ public class OrderCountQueryVo {
 	@ApiModelProperty(value = "安排日期")
 	private String reserveDateBegin;
 	private String reserveDateEnd;
-
 }
-

@@ -7,7 +7,6 @@ import lombok.Data;
 @Data
 @ApiModel(description = "会员搜索对象")
 public class UserInfoQueryVo {
-
 	@ApiModelProperty(value = "关键字")
 	private String keyword;
 
@@ -22,5 +21,4 @@ public class UserInfoQueryVo {
 
 	@ApiModelProperty(value = "创建时间")
 	private String createTimeEnd;
-
 }

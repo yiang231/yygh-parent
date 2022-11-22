@@ -18,6 +18,8 @@ import com.atguigu.yygh.pay.client.PayFeignClient;
 import com.atguigu.yygh.user.client.PatientFeignClient;
 import com.atguigu.yygh.vo.hosp.ScheduleOrderVo;
 import com.atguigu.yygh.vo.msm.MsmVo;
+import com.atguigu.yygh.vo.order.OrderCountQueryVo;
+import com.atguigu.yygh.vo.order.OrderCountVo;
 import com.atguigu.yygh.vo.order.OrderMqVo;
 import com.atguigu.yygh.vo.order.OrderQueryVo;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -29,11 +31,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo> implements OrderService {
@@ -45,6 +49,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo> im
 	private RabbitService rabbitService;
 	@Autowired
 	private PayFeignClient payFeignClient;
+	@Autowired
+	private OrderInfoMapper orderInfoMapper;
 
 	@Override
 	public Long saveOrder(String scheduleId, Long patientId) {
@@ -259,6 +265,39 @@ public class OrderServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo> im
 
 			rabbitService.sendMessage(MqConst.EXCHANGE_DIRECT_MSM, MqConst.ROUTING_MSM_ITEM, msmVo);
 		});
+	}
+
+	//数据统计
+	@Override
+	public Map<String, Object> getCountMap(OrderCountQueryVo orderCountQueryVo) {
+		List<OrderCountVo> list = orderInfoMapper.selectOrderCount(orderCountQueryVo);
+		// x--->list
+		// y--->list
+
+		// xlist + ylist ==> map
+
+//        list.stream().collect();
+		List<String> xList = new ArrayList<>();
+		List<Integer> yList = new ArrayList<>();
+
+//        list.forEach(orderCountVo -> {
+//            xList.add(orderCountVo.getReserveDate());
+//            yList.add(orderCountVo.getCount());
+//        });
+//
+//        Map<String,Object> map = new HashMap<>();
+//        map.put("dateList",xList);
+//        map.put("countList",yList);
+
+		//java8
+
+		xList = list.stream().map(OrderCountVo::getReserveDate).collect(Collectors.toList());
+		yList = list.stream().map(OrderCountVo::getCount).collect(Collectors.toList());
+
+		Map<String, Object> map = new HashMap<>();
+		map.put("dateList", xList);
+		map.put("countList", yList);
+		return map;
 	}
 
 	private void afterSaveOrder(String scheduleId, Integer availableNumber, Integer reservedNumber, Patient patient) {

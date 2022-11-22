@@ -7,7 +7,6 @@ import lombok.Data;
 @Data
 @ApiModel(description = "Department")
 public class DepartmentQueryVo {
-
 	@ApiModelProperty(value = "医院编号")
 	private String hoscode;
 

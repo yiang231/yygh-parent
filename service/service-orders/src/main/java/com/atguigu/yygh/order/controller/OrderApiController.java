@@ -5,6 +5,7 @@ import com.atguigu.yygh.common.utils.JwtHelper;
 import com.atguigu.yygh.enums.OrderStatusEnum;
 import com.atguigu.yygh.model.order.OrderInfo;
 import com.atguigu.yygh.order.service.OrderService;
+import com.atguigu.yygh.vo.order.OrderCountQueryVo;
 import com.atguigu.yygh.vo.order.OrderQueryVo;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.annotations.Api;
@@ -93,5 +94,11 @@ public class OrderApiController {
 	public R cancelOrder(@PathVariable("orderId") Long orderId) {
 		Boolean flag = orderService.cancelOrder(orderId);
 		return R.ok().data("flag", flag);
+	}
+
+	@ApiOperation(value = "数据统计")
+	@PostMapping("inner/getCountMap")   //页面上的查询条件  医院名称 + 日期范围
+	public Map<String, Object> getCountMap(@RequestBody OrderCountQueryVo orderCountQueryVo) {
+		return orderService.getCountMap(orderCountQueryVo);
 	}
 }
