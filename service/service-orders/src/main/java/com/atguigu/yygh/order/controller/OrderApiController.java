@@ -1,5 +1,10 @@
 package com.atguigu.yygh.order.controller;
 
+import com.alibaba.csp.sentinel.annotation.SentinelResource;
+import com.alibaba.csp.sentinel.slots.block.BlockException;
+import com.alibaba.csp.sentinel.slots.block.flow.param.ParamFlowItem;
+import com.alibaba.csp.sentinel.slots.block.flow.param.ParamFlowRule;
+import com.alibaba.csp.sentinel.slots.block.flow.param.ParamFlowRuleManager;
 import com.atguigu.yygh.common.result.R;
 import com.atguigu.yygh.common.utils.JwtHelper;
 import com.atguigu.yygh.enums.OrderStatusEnum;
@@ -20,6 +25,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -29,6 +36,12 @@ import java.util.Map;
 public class OrderApiController {
 	@Autowired
 	private OrderService orderService;
+
+	//代码中配置热点规则
+	//构造方法
+	public OrderApiController() {
+		initRule();
+	}
 
 	// 平台端排班id（mg）
 	@ApiOperation(value = "添加挂号订单")
@@ -100,5 +113,46 @@ public class OrderApiController {
 	@PostMapping("inner/getCountMap")   //页面上的查询条件  医院名称 + 日期范围
 	public Map<String, Object> getCountMap(@RequestBody OrderCountQueryVo orderCountQueryVo) {
 		return orderService.getCountMap(orderCountQueryVo);
+	}
+
+	/**
+	 * 导入热点值限流规则
+	 * 也可在Sentinel dashboard界面配置（仅测试）
+	 */
+	public void initRule() {
+		ParamFlowRule pRule = new ParamFlowRule("submitOrder")//资源名称，与SentinelResource值保持一致
+				//限流第一个参数
+				.setParamIdx(0)
+				//单机阈值
+				.setCount(10);
+		// 针对 热点参数值单独设置限流 QPS 阈值，而不是全局的阈值.
+		//如：1000（北京协和医院）,可以通过数据库表一次性导入，目前为测试
+		ParamFlowItem item1 = new ParamFlowItem().setObject("10000")//热点值
+				.setClassType(String.class.getName())//热点值类型
+				.setCount(2);//热点值 QPS 阈值
+		ParamFlowItem item2 = new ParamFlowItem().setObject("10001")//热点值
+				.setClassType(String.class.getName())//热点值类型
+				.setCount(5);//热点值 QPS 阈值
+		List<ParamFlowItem> list = new ArrayList<>();
+		list.add(item1);
+		list.add(item2);
+
+		pRule.setParamFlowItemList(list);
+		ParamFlowRuleManager.loadRules(Collections.singletonList(pRule));
+	}
+
+	//测试接口--提交订单
+	@PostMapping("auth/submitOrder/{hoscode}/{scheduleId}/{patientId}")
+	//value：接口的资源名
+	//blockHandler： 被限流时要执行的一个本地方法  （默认显示异常信息：Blocked by Sentinel (flow limiting)）
+	@SentinelResource(value = "submitOrder", blockHandler = "submitOrderBlockHandler")
+	public R submitOrder(@PathVariable String hoscode, @PathVariable String scheduleId, @PathVariable Long patientId) {
+		Long orderId = 1L; //orderService.saveOrders(scheduleId,patientId);
+		return R.ok().data("orderId", orderId);
+	}
+
+	//被限流时执行的方法
+	public R submitOrderBlockHandler(String hoscode, String scheduleId, Long patientId, BlockException e) {
+		return R.error().message("系统业务繁忙，请稍后下单");
 	}
 }
